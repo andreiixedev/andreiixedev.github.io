@@ -1,110 +1,152 @@
-<html data-bs-theme="light">
-    <head>
-        <!--Title Website-->
-        <title>Andreiixe Website</title>
-        <!--Icon Website-->
-        <link rel="shortcut icon" type="image/jpg" href="src/icon/andreiixe.ico"/>
-        <!--View Port for mobile-->
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!--Custom CSS-->
-        <link rel="stylesheet" type="text/css" href="src/css/style.css">
-        <!--Bootstrap imports-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-        <!--import scripts custom-->
-        <script src="src/js/script.js"></script>
-    </head>
-    <body>
-        <!--Navbar-->
-        <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary"> 
-          <div class="container-fluid text-success d-flex justify-content-between">
-              <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#gfgnavbar"> 
-                  <span class="navbar-toggler-icon"> 
-                  </span> 
-              </button> 
-              <div class="collapse navbar-collapse justify-content-center" id="gfgnavbar">
-                  <!-- Left links -->
-                  <ul class="navbar-nav mb-2 mb-lg-0">
-                      <li class="nav-item">
-                          <a class="nav-link" href="index.html">Home</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link active" href="about-me.html">About-me</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link" href="Projects.html">Projects</a>
-                      </li>
-                  </ul>
-              </div>
-              <!-- Theme Switcher Button (aligned to the right) -->
-              <button id="themeSwitcher" class="btn btn-outline-secondary">
-                  Dark Mode
-              </button>
-          </div> 
-      </nav> 
+<html data-bs-theme="dark">
+  <head>
+    <!-- Title Website -->
+    <title>Andreiixe Website</title>
 
-      <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+    <!-- Icon Website -->
+    <link rel="shortcut icon" type="image/jpg" href="src/icon/andreiixe.ico" />
+
+    <!-- Viewport for mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="src/css/style.css">
+
+    <!-- Bootstrap imports -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- Model Viewer Library -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        .model-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        model-viewer {
+            width: 200px;
+            height: 200px;
+        }
+
+        .navbar {
+            width: auto;
+            border-radius: 0 0 16px 16px;
+            padding: 0.5rem 1rem;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Show button only on small screens */
+        @media (min-width: 992px) {
+            .d-nonelolmin {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .d-nonelol {
+                display: none;
+            }
+        }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary mx-auto">
+      <div class="container-fluid text-success d-flex justify-content-between">
+          <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#gfgnavbar">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-center" id="gfgnavbar">
+              <ul class="navbar-nav mb-2 mb-lg-0">
+                  <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                  <li class="nav-item"><a class="nav-link active" href="about-me.html">About-me</a></li>
+                  <li class="nav-item"><a class="nav-link" href="Projects.html">Projects</a></li>
+              </ul>
+          </div>
+          <div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol">
+              <input class="form-check-input" type="checkbox" id="themeSwitcherInput" />
+          </div>
+          <button id="themeSwitcherButton" class="btn">
+              <i id="themeIcon" class="bi bi-sun"></i>
+          </button>
+      </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
             const htmlElement = document.documentElement;
-            const themeSwitcher = document.getElementById('themeSwitcher');
-            
-            // Function to get theme from cookie
+            const themeSwitcherInput = document.getElementById('themeSwitcherInput');
+            const themeSwitcherButton = document.getElementById('themeSwitcherButton');
+            const themeIcon = document.getElementById('themeIcon');
+
             function getThemeFromCookie() {
                 const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
-                return themeCookie ? themeCookie.split('=')[1] : 'light'; // Default to light if no cookie
+                return themeCookie ? themeCookie.split('=')[1] : 'light';
             }
 
-            // Function to set the theme in a cookie
             function setThemeCookie(theme) {
-                document.cookie = `theme=${theme}; path=/; max-age=31536000`; // 1 year expiration
+                document.cookie = `theme=${theme}; path=/; max-age=31536000`;
             }
 
-            // Function to update the theme and button text
             function updateTheme(theme) {
                 htmlElement.setAttribute('data-bs-theme', theme);
                 setThemeCookie(theme);
-                // Update the button text based on the theme
-                themeSwitcher.textContent = theme === 'dark' ? 'White' : 'Dark';
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('bi-sun');
+                    themeIcon.classList.add('bi-moon');
+                    themeSwitcherInput.checked = true;
+                } else {
+                    themeIcon.classList.remove('bi-moon');
+                    themeIcon.classList.add('bi-sun');
+                    themeSwitcherInput.checked = false;
+                }
             }
 
-            // Initialize the theme from cookie
             const savedTheme = getThemeFromCookie();
             updateTheme(savedTheme);
 
-            // Add event listener to toggle theme
-            themeSwitcher.addEventListener('click', () => {
+            themeSwitcherButton.addEventListener('click', () => {
                 const currentTheme = htmlElement.getAttribute('data-bs-theme');
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 updateTheme(newTheme);
             });
+
+            themeSwitcherInput.addEventListener('change', () => {
+                const newTheme = themeSwitcherInput.checked ? 'dark' : 'light';
+                updateTheme(newTheme);
+            });
         });
-      </script>
-        <!--Close navbar-->
-          <!--Content Website-->
-          <div class="container my-5">
-            <div class="p-5 text-center bg-body-tertiary rounded-3">
-              <!-- issuse bug "About-me image not centered #2"-->
-              <img class="imgaf" src="src/images/Itsmee.png"></img>
-              <br>
-              <br>
-              <h1 class="text-body-emphasis">Who am I?</h1>
-              <p class="col-lg-8 mx-auto fs-5 text-muted">
-                Hey there! Did you forget who's behind the screen? Yep, it's me – the friendly neighborhood web creator who crafts simple yet oh-so-cute websites. And hey, if my speech occasionally takes a quirky turn, no worries, it just adds to the charm, right? So let's keep it chill, keep it fun, and keep on crafting those delightful digital spaces.
-              </p>
-            </div>
-          </div>
-          <!--Close Content Website-->
-          <!--Footer-->
-          <div class="container">
-            <footer class="py-3 my-4">
-              <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-                <li class="nav-item"><a href="https://www.instagram.com/andreiixe/" class="nav-link px-2 text-muted">Social</a></li>
-                <li class="nav-item"><a href="https://github.com/andreiixe" class="nav-link px-2 text-muted">Github</a></li>
-                <li class="nav-item"><a href="mailto: akaiandrei825@gmail.com" class="nav-link px-2 text-muted">Email</a></li>
-              </ul>
-              <p class="text-center text-muted">&copy; 2024 Andreiixe</p>
-            </footer>
-          </div>
-          <!--Close Footer-->
-    </body>
+    </script>
+
+    <!-- Content Website -->
+    <div class="container my-5">
+      <div class="p-5 text-center bg-body-tertiary rounded-3">
+        <img class="imgaf" src="src/images/Itsmee.png" alt="About Me">
+        <br><br>
+        <h1 class="text-body-emphasis">Who am I?</h1>
+        <p class="col-lg-8 mx-auto fs-5 text-muted">
+            Hey there! Did you forget who's behind the screen? Yep, it's me – the friendly neighborhood web creator who crafts simple yet oh-so-cute websites. And hey, if my speech occasionally takes a quirky turn, no worries, it just adds to the charm, right? So let's keep it chill, keep it fun, and keep on crafting those delightful digital spaces.
+        </p>
+      </div>
+    </div>
+    <!-- Close Content Website -->
+
+    <!-- Footer -->
+    <div class="container">
+      <footer class="py-3 my-4">
+        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+          <li class="nav-item"><a href="https://www.instagram.com/andreiixe/" class="nav-link px-2 text-muted">Social</a></li>
+          <li class="nav-item"><a href="https://github.com/andreiixe" class="nav-link px-2 text-muted">Github</a></li>
+          <li class="nav-item"><a href="mailto: akaiandrei825@gmail.com" class="nav-link px-2 text-muted">Email</a></li>
+        </ul>
+        <p class="text-center text-muted">&copy; 2024 Andreiixe</p>
+      </footer>
+    </div>
+    <!-- Close Footer -->
+  </body>
 </html>

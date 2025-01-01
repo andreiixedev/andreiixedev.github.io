@@ -1,19 +1,36 @@
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', function () {
     const htmlElement = document.documentElement;
-    const switchElement = document.getElementById('darkModeSwitch');
+    const themeButton = document.getElementById('themeButton');
+    const themeIcon = document.getElementById('themeIcon');
 
-    // Set the default theme to dark if no setting is found in local storage
+    // Setează tema implicită pe "dark" dacă nu există nici o valoare în localStorage
     const currentTheme = localStorage.getItem('bsTheme') || 'dark';
     htmlElement.setAttribute('data-bs-theme', currentTheme);
-    switchElement.checked = currentTheme === 'dark';
 
-    switchElement.addEventListener('change', function () {
-        if (this.checked) {
-            htmlElement.setAttribute('data-bs-theme', 'dark');
-            localStorage.setItem('bsTheme', 'dark');
+    // Schimbă iconița în funcție de tema activă
+    function updateIcon() {
+        if (htmlElement.getAttribute('data-bs-theme') === 'dark') {
+            themeIcon.classList.remove('bi-sun');
+            themeIcon.classList.add('bi-moon');
         } else {
+            themeIcon.classList.remove('bi-moon');
+            themeIcon.classList.add('bi-sun');
+        }
+    }
+
+    // Schimbă tema când se apasă butonul
+    themeButton.addEventListener('click', function () {
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+        if (currentTheme === 'dark') {
             htmlElement.setAttribute('data-bs-theme', 'light');
             localStorage.setItem('bsTheme', 'light');
+        } else {
+            htmlElement.setAttribute('data-bs-theme', 'dark');
+            localStorage.setItem('bsTheme', 'dark');
         }
+        updateIcon(); // Actualizează iconița
     });
+
+    // Inițializare iconiță și tema
+    updateIcon(); 
 });
