@@ -53,6 +53,18 @@
                 display: none;
             }
         }
+
+        #last-playing {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .animated-gradient {
+            background: linear-gradient( #ff0000, #ff7300);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +143,7 @@
     <!-- Content Website -->
     <div class="px-4 py-5 my-5 text-center">
         <h1 class="display-5 fw-bold">Welcome to <span class="auto-input"></span></h1>
+        <p id="last-playing" class="lead mb-4">Fetching last played song...</p>
         <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
         <script>
             let typed = new Typed(".auto-input", {
@@ -140,9 +153,6 @@
                 loop: true
             });
         </script>
-        <div class="col-lg-6 mx-auto">
-            <p class="lead mb-4">Wandering through life 🌟, headphones on 🎧</p>
-        </div>
         <div class="model-container">
             <model-viewer 
                 src="src/models/Monitor001.glb" 
@@ -165,6 +175,42 @@
             <p class="text-center text-muted">&copy; 2024 Andreiixe</p>
         </footer>
     </div>
+
+    <script>
+        let lastFetchedTrackName = '';
+    
+        async function fetchLastPlaying() {
+            const username = 'andreiixe'; // Nume de utilizator Last.fm
+            const apiKey = '6f24e97412779daa6b6ae810f930e155'; // API Key de la Last.fm
+            const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json`;
+    
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const track = data.recenttracks.track[0];
+                const nowPlaying = track['@attr'] && track['@attr'].nowplaying;
+                const trackName = track.name;
+                const artistName = track.artist['#text'];
+    
+                // Actualizează doar dacă s-a schimbat melodia
+                if (trackName !== lastFetchedTrackName) {
+                    lastFetchedTrackName = trackName;
+                    const trackInfo = nowPlaying 
+                        ? `<img src='src/gifs/dance.gif'><br>Listening now: <strong class="animated-gradient">${trackName}</strong><em class="animated-gradient"> by ${artistName}</em>` 
+                        : `Wandering through life 🌟, headphones on 🎧`;
+                    document.getElementById('last-playing').innerHTML = trackInfo;
+                }
+            } catch (error) {
+                console.error('Error fetching Last.fm data:', error);
+                document.getElementById('last-playing').innerText = 'Unable to fetch Last.fm data.';
+            }
+        }
+    
+        // Apelează funcția la fiecare 10 secunde
+        fetchLastPlaying(); // Prima apelare
+        setInterval(fetchLastPlaying, 10000); // Reapelați la fiecare 10 secunde
+    </script>
+    
 
 </body>
 </html>
