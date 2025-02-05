@@ -66,65 +66,66 @@
                   <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
                   <li class="nav-item"><a class="nav-link" href="about-me.html">About-me</a></li>
                   <li class="nav-item"><a class="nav-link active" href="Projects.html">Projects</a></li>
+                  <li class="nav-item"><a class="nav-link" href="Miscellaneous.html">Miscellaneous</a></li>
               </ul>
           </div>
-          <div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol">
-              <input class="form-check-input" type="checkbox" id="themeSwitcherInput" />
-          </div>
-          <button id="themeSwitcherButton" class="btn">
-              <i id="themeIcon" class="bi bi-sun"></i>
-          </button>
+<div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol">
+    <!-- <input class="form-check-input" type="checkbox" id="themeSwitcherInput" /> -->
+</div>
+<button id="themeSwitcherButton" class="btn">
+    <i id="themeIcon" class="bi bi-sun"></i>
+</button>
       </div>
   </nav>
 
   <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          const htmlElement = document.documentElement;
-          const themeSwitcherInput = document.getElementById('themeSwitcherInput');
-          const themeSwitcherButton = document.getElementById('themeSwitcherButton');
-          const themeIcon = document.getElementById('themeIcon'); 
+    document.addEventListener('DOMContentLoaded', () => {
+        const htmlElement = document.documentElement;
+        // const themeSwitcherInput = document.getElementById('themeSwitcherInput');
+        const themeSwitcherButton = document.getElementById('themeSwitcherButton');
+        const themeIcon = document.getElementById('themeIcon'); 
 
-          function getThemeFromCookie() {
-              const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
-              return themeCookie ? themeCookie.split('=')[1] : 'light';
-          }
+        function getThemeFromCookie() {
+            const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
+            return themeCookie ? themeCookie.split('=')[1] : 'light';
+        }
 
-          function setThemeCookie(theme) {
-              document.cookie = `theme=${theme}; path=/; max-age=31536000`;
-          }
+        function setThemeCookie(theme) {
+            document.cookie = `theme=${theme}; path=/; max-age=31536000`;
+        }
 
-          function updateTheme(theme) {
-              htmlElement.setAttribute('data-bs-theme', theme);
-              setThemeCookie(theme);
-              // Update icon based on theme
-              if (theme === 'dark') {
-                  themeIcon.classList.remove('bi-sun');
-                  themeIcon.classList.add('bi-moon');
-                  themeSwitcherInput.checked = true;
-              } else {
-                  themeIcon.classList.remove('bi-moon');
-                  themeIcon.classList.add('bi-sun');
-                  themeSwitcherInput.checked = false;
-              }
-          }
+        function updateTheme(theme) {
+            htmlElement.setAttribute('data-bs-theme', theme);
+            setThemeCookie(theme);
+            // Update icon based on theme
+            if (theme === 'dark') {
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon');
+                // themeSwitcherInput.checked = true;
+            } else {
+                themeIcon.classList.remove('bi-moon');
+                themeIcon.classList.add('bi-sun');
+                // themeSwitcherInput.checked = false;
+            }
+        }
 
-          const savedTheme = getThemeFromCookie();
-          updateTheme(savedTheme);
+        const savedTheme = getThemeFromCookie();
+        updateTheme(savedTheme);
 
-          // Toggle theme on button click
-          themeSwitcherButton.addEventListener('click', () => {
-              const currentTheme = htmlElement.getAttribute('data-bs-theme');
-              const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-              updateTheme(newTheme);
-          });
+        // Toggle theme on button click
+        themeSwitcherButton.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            updateTheme(newTheme);
+        });
 
-          // Toggle theme on checkbox change
-          themeSwitcherInput.addEventListener('change', () => {
-              const newTheme = themeSwitcherInput.checked ? 'dark' : 'light';
-              updateTheme(newTheme);
-          });
-      });
-  </script>
+        /* Toggle theme on checkbox change
+        themeSwitcherInput.addEventListener('change', () => {
+            const newTheme = themeSwitcherInput.checked ? 'dark' : 'light';
+            updateTheme(newTheme);
+        }); */
+    });
+</script>
         <!--Close navbar-->
           <!--Content Website-->
           

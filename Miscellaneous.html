@@ -1,26 +1,27 @@
+<!DOCTYPE html>
 <html data-bs-theme="dark">
-  <head>
+<head>
     <!-- Title Website -->
     <title>Andreiixe Website</title>
-
+    
     <!-- Icon Website -->
     <link rel="shortcut icon" type="image/jpg" href="src/icon/andreiixe.ico" />
-
+    
     <!-- Viewport for mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="src/css/style.css">
-
+    
     <!-- Bootstrap imports -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+    
     <!-- Model Viewer Library -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
+    
     <style>
         .model-container {
             display: flex;
@@ -52,9 +53,22 @@
                 display: none;
             }
         }
+
+        #last-playing {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .animated-gradient {
+            background: linear-gradient( #ff0000, #ff7300);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary mx-auto">
         <div class="container-fluid text-success d-flex justify-content-between">
@@ -64,9 +78,9 @@
             <div class="collapse navbar-collapse justify-content-center" id="gfgnavbar">
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="about-me.html">About-me</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about-me.html">About-me</a></li>
                     <li class="nav-item"><a class="nav-link" href="Projects.html">Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Miscellaneous.html">Miscellaneous</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="Miscellaneous.html">Miscellaneous</a></li>
                 </ul>
             </div>
             <div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol"></div>
@@ -109,29 +123,42 @@
     </script>
 
     <!-- Content Website -->
-    <div class="container my-5">
-      <div class="p-5 text-center bg-body-tertiary rounded-3">
-        <img class="imgaf" src="src/images/Itsmee.png" alt="About Me">
-        <br><br>
-        <h1 class="text-body-emphasis">Who am I?</h1>
-        <p class="col-lg-8 mx-auto fs-5 text-muted">
-            Hey there! Did you forget who's behind the screen? Yep, it's me – the friendly neighborhood web creator who crafts simple yet oh-so-cute websites. And hey, if my speech occasionally takes a quirky turn, no worries, it just adds to the charm, right? So let's keep it chill, keep it fun, and keep on crafting those delightful digital spaces.
-        </p>
+    <div class="container px-4 py-5" id="custom-cards">
+        <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
+          <a href="https://github.com/andreiixedev/Thinkpad-R61"><div class="col">
+            <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style="background-image: url('');">
+              <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Thinkpad r61 (Drivers & Stuff)</h3>
+                <ul class="d-flex list-unstyled mt-auto">
+                  <li class="me-auto">
+                    <img src="https://avatars.githubusercontent.com/u/192112046?v=4" alt="Bootstrap" width="32" height="32" class="rounded-circle border border-white">
+                  </li>
+                  <li class="d-flex align-items-center me-3">
+                    <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#geo-fill"></use></svg>
+                    <small>Laptop</small>
+                  </li>
+                  <li class="d-flex align-items-center">
+                    <svg class="bi me-2" width="1em" height="1em"><use xlink:href="#calendar3"></use></svg>
+                    <small>4d</small>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          </a>
+        </div>
       </div>
-    </div>
-    <!-- Close Content Website -->
 
     <!-- Footer -->
     <div class="container">
-      <footer class="py-3 my-4">
-        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-          <li class="nav-item"><a href="https://www.instagram.com/andreiixe/" class="nav-link px-2 text-muted">Social</a></li>
-          <li class="nav-item"><a href="https://github.com/andreiixe" class="nav-link px-2 text-muted">Github</a></li>
-          <li class="nav-item"><a href="mailto: akaiandrei825@gmail.com" class="nav-link px-2 text-muted">Email</a></li>
-        </ul>
-        <p class="text-center text-muted">&copy; 2024 Andreiixe</p>
-      </footer>
+        <footer class="py-3 my-4">
+            <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+                <li class="nav-item"><a href="https://www.instagram.com/andreiixe/" class="nav-link px-2 text-muted">Social</a></li>
+                <li class="nav-item"><a href="https://github.com/andreiixedev" class="nav-link px-2 text-muted">Github</a></li>
+                <li class="nav-item"><a href="mailto: akaiandrei825@gmail.com" class="nav-link px-2 text-muted">Email</a></li>
+            </ul>
+            <p class="text-center text-muted">&copy; 2024 Andreiixe</p>
+        </footer>
     </div>
-    <!-- Close Footer -->
-  </body>
+</body>
 </html>
