@@ -8,6 +8,13 @@
     -webkit-text-fill-color: transparent;
 }
 
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+
 .feature-icon {
     width: 4rem;
     height: 4rem;
