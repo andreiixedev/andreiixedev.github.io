@@ -1,5 +1,6 @@
 <html data-bs-theme="dark">
-  <head>
+
+<head>
     <!-- Title Website -->
     <title>Andreiixe Website</title>
 
@@ -53,20 +54,32 @@
             }
         }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary mx-auto">
+    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary fixed-top mx-auto">
         <div class="container-fluid text-success d-flex justify-content-between">
             <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#gfgnavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-center" id="gfgnavbar">
                 <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="about-me.html">About-me</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Projects.html">Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Miscellaneous.html">Miscellaneous</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <button class="btn btn-dark rounded-pill px-3" type="button">Home</button>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about-me.html">
+                            <button class="btn btn-dark rounded-pill px-3" type="button">About</button>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Projects.html">
+                            <button class="btn btn-dark rounded-pill px-3" type="button">Projects</button>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol"></div>
@@ -80,7 +93,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const htmlElement = document.documentElement;
             const themeSwitcherButton = document.getElementById('themeSwitcherButton');
-            const themeIcon = document.getElementById('themeIcon'); 
+            const themeIcon = document.getElementById('themeIcon');
 
             function getThemeFromCookie() {
                 const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
@@ -107,31 +120,150 @@
             });
         });
     </script>
-    
+    <br><br>
     <!-- Content Website -->
     <div class="container my-5">
-      <div class="p-5 text-center bg-body-tertiary rounded-3">
-        <img class="imgaf" src="src/images/Itsmee.png" alt="About Me">
-        <br><br>
-        <h1 class="text-body-emphasis">Who am I?</h1>
-        <p class="col-lg-8 mx-auto fs-5 text-muted">
-            Hey there! Did you forget who's behind the screen? Yep, it's me – the friendly neighborhood web creator who crafts simple yet oh-so-cute websites. And hey, if my speech occasionally takes a quirky turn, no worries, it just adds to the charm, right? So let's keep it chill, keep it fun, and keep on crafting those delightful digital spaces.
-        </p>
-      </div>
+        <div class="p-5 text-center bg-body-tertiary rounded-3">
+            <img class="imgaf" src="src/images/Itsmee.png" alt="About Me">
+            <br><br>
+            <h1 class="text-body-emphasis">Who am I?</h1>
+            <p class="col-lg-8 mx-auto fs-5 text-muted">
+                I’m the guy you overlook in your daily routine — but I might just be that missing piece in your unfinished puzzle. I dream big, start things with fire, and often leave them halfway, not out of laziness, but caught in a quiet war with myself. My words don’t always come out perfect, but they’re always real. I’m a dreamer with empty pockets and a full heart. I’m not perfect, but every day, I try to be a little more me than I was yesterday.
+            </p>
+        </div>
     </div>
+
+    <!-- Include Bootstrap CSS și JS în <head> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="container py-4">
+        <h2 class="mb-2">My Computers</h2>
+        <p class="text-muted mb-4">
+            A personal collection of computers I’ve worked with, fixed, upgraded, or simply grown attached to over time. Click on any of them to see its specifications and story.
+        </p>
+
+        <!-- Lista de PC-uri -->
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#pc1Modal">
+                🖥️ Pika-PC (Main)
+            </a>
+            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#pc2Modal">
+                🖳 HPiixe-H8TJ1 (Retro-PC)
+            </a>
+            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#pc3Modal">
+                💻 Fukkit-NLJZS (Server - Server Minecraft)
+            </a>
+            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#pc4Modal">
+                🍎 PowerMac G4 MDD
+            </a>
+        </div>
+    </div>
+
+    <!-- Modal PC1 -->
+    <div class="modal fade" id="pc1Modal" tabindex="-1" aria-labelledby="pc1Label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pc1Label">🖥️ Pika-PC (Main)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <strong>OS:</strong> Windows 11 IoT Enterprise LTSC<Br><br>
+                    <strong>Specifications:</strong><br>
+                    Intel(R) Core(TM) i5-2500<br>
+                    Ram: 8.00 GB DDR3<br>
+                    AMD Radeon RX 570 (4 gb)<br>
+                    SSD 480GB (main) <br>
+                    SSD 240GB <br>
+                    HDD 680GB<br><br>
+                    <strong>Story:</strong><br>
+                    I started with it when I didn't have much money, and over time, as I managed to save, I kept upgrading it. I made sure it could handle my daily tasks and office work, but of course, I never forgot about gaming. This PC is more than just a device for me—it's an investment I made with care and passion. Every upgrade has been a favor I did for myself, and now I’m truly proud of it because it’s the result of many hours of work and sacrifice.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PC2 -->
+    <div class="modal fade" id="pc2Modal" tabindex="-1" aria-labelledby="pc2Label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pc2Label">🖳 HPiixe-H8TJ1 (Retro-PC)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>>> HP Compaq dc7800 Small Form Factor</h6><br>
+                    <strong>OS:</strong> Windows Embedded POSReady 2009<br><br>
+
+                    <strong>Specifications:</strong><br>
+                    Intel(R) Core(TM)2 Duo CPU E6550 <br>
+                    Ram: 5.00 GB DDR2<br>
+                    AMD Radeon HD 6840 (512mb)<br>
+                    SSD 240GB<br>
+                    HDD 500GB<br><br>
+                    <strong>Story:</strong><br>
+                    I salvaged it from an office where I worked with the owner's permission, as it was old. I gathered some parts here and there and turned it into a PC with the games from my childhood. Even though it brings back some unpleasant memories, like getting kicked out of that office, at least I still have the memories of my first job.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PC3 -->
+    <div class="modal fade" id="pc3Modal" tabindex="-1" aria-labelledby="pc3Label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pc3Label">💻 Fukkit-NLJZS (Server - Server Minecraft)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>>> Thinkpad R61 7733W94</h6><br>
+                    <strong>OS:</strong> Ubuntu Server 24.04.2 LTS<br><br>
+
+                    <strong>Specifications:</strong><br>
+                    Intel Core 2 Duo T7100<br>
+                    Ram: 4.00 GB DDR2<br>
+                    Intel Mobile GM965<br>
+                    SSD 128GB<br><br>
+                    <strong>Story:</strong><br>
+                    I bought it second-hand for a really good price — honestly, a bargain. At first, it served as my main PC while I was gathering parts for my primary build. And let me tell you, it held up like a champ. I even dropped it in water once (don’t ask how), and it came out completely fine — like it was built to survive anything.
+                    It’s been running for nearly four months straight now as a server, and not once has it caused any issues. I call it “the silent soldier” — always working in the background, never complaining. I use it to host my bots and run a small Minecraft server that my girlfriend and I play on whenever we want to escape the world for a bit.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PC4 -->
+    <div class="modal fade" id="pc4Modal" tabindex="-1" aria-labelledby="pc4Label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pc4Label">🍎 PowerMac G4 MDD</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <strong>Specifications:</strong><br>
+                    PowerPC 7455 (G4) processor 1.25 GHz<br>
+                    Ram 2.00 GB DDR SDRAM<br>
+                    HDD 30 GB<br><br>
+                    <strong>Story:</strong><br>
+                    I bought it for a pretty decent price, even though it was nearly falling apart. It looked like it had been forgotten in some abandoned warehouse… but with a bit of ambition, some nerves of steel, and a few extra expenses, I brought it back to life.
+                    The best part? I had to run with it in my arms like a trophy just to catch the train — but it was totally worth it! :D
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Close Content Website -->
 
     <!-- Footer -->
     <div class="container">
-      <footer class="py-3 my-4">
-        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-          <li class="nav-item"><a href="https://www.instagram.com/andreiixe/" class="nav-link px-2 text-muted">Social</a></li>
-          <li class="nav-item"><a href="https://github.com/andreiixe" class="nav-link px-2 text-muted">Github</a></li>
-          <li class="nav-item"><a href="mailto: akaiandrei825@gmail.com" class="nav-link px-2 text-muted">Email</a></li>
-        </ul>
-        <p class="text-center text-muted">&copy; 2025 Andreiixe</p>
-      </footer>
+        <footer class="py-3 my-4">
+            <p class="text-center text-muted">&copy; 2025 Andreiixe</p>
+        </footer>
     </div>
     <!-- Close Footer -->
-  </body>
+</body>
+
 </html>
