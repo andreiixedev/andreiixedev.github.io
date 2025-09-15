@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Me - Glass Navbar with Dark/Light Mode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="src/css/style.css">
+    <style>
+        /* Additional styles for About page */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(255, 106, 0, 0.1), rgba(238, 9, 121, 0.1));
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 106, 0, 0.05) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #ff6a00, #ee0979);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(45deg, #ff6a00, #ee0979);
+            border-radius: 50%;
+        }
+        .hobby-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hobby-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        body.light-mode .hobby-card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar desktop -->
+<div class="container mt-4 desktop-navbar">
+    <nav class="navbar glass-navbar justify-content-between">
+        <button id="themeToggle" class="theme-toggle">🌙</button>
+        <ul class="navbar-nav flex-row gap-4">
+            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="aboutme.html">About Me</a></li>
+            <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+            <li class="nav-item"><a class="nav-link" href="links.html">Links</a></li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Navbar mobil -->
+<div class="mobile-navbar" id="mobileNavbar">
+    <div class="d-flex">
+        <button id="themeToggleMobile" class="theme-toggle">🌙</button>
+        <div class="menu-btn" id="toggleMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div class="menu-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="aboutme.html">About Me</a>
+        <a class="nav-link" href="projects.html">Projects</a>
+        <a class="nav-link" href="links.html">Links</a>
+    </div>
+</div>
+
+<!-- Hero Section -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron-box hero-section text-center p-5 rounded-4">
+                <div class="profile-image mb-4">
+                    <img src="src/images/pfp.png" alt="Profile" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid; background: linear-gradient(45deg, #ff6a00, #ee0979);">
+                </div>
+                <h1 class="display-4 fw-bold aesthetic-text mb-4">
+                    Hi, I'm&nbsp;<span class="colors">Andreiixe</span>
+                </h1>
+                <p class="lead">
+                    I am just a random developer who writes code for enjoyment, not to do something just for fun, but out of passion :D
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Experience -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="jumbotron-box p-4 rounded-4">
+                <h2 class="mb-4 colors text-center">My Journey</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h5 class="fw-bold">2022 - Present | Freelance Developer</h5>
+                        <p class="mb-0">Creating, modifying, and maintaining software applications; porting programs to older systems; building custom solutions; and contributing to open-source projects.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hobbies Grid -->
+    <div class="row mt-5 g-4">
+        <div class="col-md-4">
+            <div class="jumbotron-box hobby-card p-4 rounded-4 text-center h-100">
+                <h3 class="colors mb-3">🎸 Music</h3>
+                <p>Discovering new music and crafting playlists that keep me inspired while coding</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="jumbotron-box hobby-card p-4 rounded-4 text-center h-100">
+                <h3 class="colors mb-3">🎨 Digital Art</h3>
+                <p>Wait… did someone say I draw? <br>Absolutely! Check it out: <a href="https://www.deviantart.com/andreiixe">Deviantart</a></p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="jumbotron-box hobby-card p-4 rounded-4 text-center h-100">
+                <h3 class="colors mb-3">🌿 Free time</h3>
+                <p>Spent most of my time buried in computers and sleeping.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<br>
+<p class="text-center">
+    © <span id="year"></span> andreiixe. All rights reserved.
+</p>
+
+<script>
+    // Setează anul curent automat
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+<!-- Typed.js -->
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script src="src/js/script.js"></script>
+</body>
+</html>

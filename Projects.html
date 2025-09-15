@@ -1,423 +1,187 @@
-<html data-bs-theme="dark">
-
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
 <head>
-    <!-- Title Website -->
-    <title>Andreiixe Website</title>
-
-    <!-- Icon Website -->
-    <link rel="shortcut icon" type="image/jpg" href="src/icon/andreiixe.ico" />
-
-    <!-- Viewport for mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="src/css/style.css">
-
-    <!-- Bootstrap imports -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Andreiixe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <!-- Model Viewer Library -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-    <style>
-        .model-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        model-viewer {
-            width: 200px;
-            height: 200px;
-        }
-
-        .navbar {
-            width: auto;
-            border-radius: 0 0 16px 16px;
-            padding: 0.5rem 1rem;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Show button only on small screens */
-        @media (min-width: 992px) {
-            .d-nonelolmin {
-                display: block !important;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .d-nonelol {
-                display: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="src/css/style.css">
 </head>
-
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary fixed-top mx-auto">
-        <div class="container-fluid text-success d-flex justify-content-between">
-            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#gfgnavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-center" id="gfgnavbar">
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.html">
-                            <button class="btn btn-dark rounded-pill px-3" type="button">Home</button>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about-me.html">
-                            <button class="btn btn-dark rounded-pill px-3" type="button">About</button>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="Projects.html">
-                            <button class="btn btn-dark rounded-pill px-3" type="button">Projects</button>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol">
-                <!-- <input class="form-check-input" type="checkbox" id="themeSwitcherInput" /> -->
-            </div>
-            <button id="themeSwitcherButton" class="btn">
-                <i id="themeIcon" class="bi bi-sun"></i>
-            </button>
-        </div>
+<!-- Navbar desktop -->
+<div class="container mt-4 desktop-navbar">
+    <nav class="navbar glass-navbar justify-content-between">
+        <button id="themeToggle" class="theme-toggle">🌙</button>
+        <ul class="navbar-nav flex-row gap-4">
+            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="aboutme.html">About Me</a></li>
+            <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+            <li class="nav-item"><a class="nav-link" href="links.html">Links</a></li>
+        </ul>
     </nav>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const htmlElement = document.documentElement;
-            // const themeSwitcherInput = document.getElementById('themeSwitcherInput');
-            const themeSwitcherButton = document.getElementById('themeSwitcherButton');
-            const themeIcon = document.getElementById('themeIcon');
-
-            function getThemeFromCookie() {
-                const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
-                return themeCookie ? themeCookie.split('=')[1] : 'light';
-            }
-
-            function setThemeCookie(theme) {
-                document.cookie = `theme=${theme}; path=/; max-age=31536000`;
-            }
-
-            function updateTheme(theme) {
-                htmlElement.setAttribute('data-bs-theme', theme);
-                setThemeCookie(theme);
-                // Update icon based on theme
-                if (theme === 'dark') {
-                    themeIcon.classList.remove('bi-sun');
-                    themeIcon.classList.add('bi-moon');
-                    // themeSwitcherInput.checked = true;
-                } else {
-                    themeIcon.classList.remove('bi-moon');
-                    themeIcon.classList.add('bi-sun');
-                    // themeSwitcherInput.checked = false;
-                }
-            }
-
-            const savedTheme = getThemeFromCookie();
-            updateTheme(savedTheme);
-
-            // Toggle theme on button click
-            themeSwitcherButton.addEventListener('click', () => {
-                const currentTheme = htmlElement.getAttribute('data-bs-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                updateTheme(newTheme);
-            });
-
-            /* Toggle theme on checkbox change
-            themeSwitcherInput.addEventListener('change', () => {
-                const newTheme = themeSwitcherInput.checked ? 'dark' : 'light';
-                updateTheme(newTheme);
-            }); */
-        });
-    </script>
-    <!--Close navbar-->
-    <!--Content Website-->
-    <br><br><br><br>
-    <!-- Carusel complet -->
-    <div class="container">
-    <div class="carousel-wrapper mx-auto ">
-        <div id="myCarousel" class="carousel slide carousel-fade mb-6" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
-
-            <!-- Indicatori -->
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            </div>
-
-            <!-- Slide-uri -->
-            <div class="carousel-inner rounded-4">
-
-                <!-- Slide 1 -->
-                <div class="carousel-item active" style="height: 500px;">
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar-fill"></div>
-                    </div>
-                    <img src="src/images/projects/CLASSICUBE.png" class="d-block w-100 h-100 object-fit-cover" alt="Descriere imagine">
-                    <div class="carousel-caption text-start">
-                        <h1>[ClassiCube-PPC]</h1>
-                        <span class="badge text-bg-primary rounded-pill">C</span>&nbsp;
-                        <span class="badge text-bg-primary rounded-pill">Objective-C</span>&nbsp;
-                        <span class="badge text-bg-primary rounded-pill">JS / Java</span>&nbsp;
-                        <span class="badge text-bg-primary rounded-pill">Assembly</span>&nbsp;|&nbsp;
-                        <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">PPC</span>
-                        <p class="opacity-75">Custom Minecraft Classic / ClassiCube client written in C from scratch (formerly ClassicalSharp in C#)</p>
-                        <p><a class="btn btn-lg btn-primary" href="https://github.com/andreiixedev/ClassiCube-PPC/releases">Releases</a></p>
-                    </div>
-                </div>
-
-                <!-- Slide 2 -->
-                <div class="carousel-item" style="height: 500px;">
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar-fill"></div>
-                    </div>
-                    <img src="src/images/projects/RandomByteWorks.PNG" class="d-block w-100 h-100 object-fit-cover" alt="Descriere imagine">
-                    <div class="carousel-caption">
-                        <h1>[RandomByteWorks]</h1>
-                        <span class="badge text-bg-warning rounded-pill">C</span>&nbsp;
-                        <span class="badge text-bg-primary rounded-pill">Python</span>&nbsp;
-                        <span class="badge text-bg-primary rounded-pill">Shell</span>&nbsp;|&nbsp;
-                        <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
-                        <p>Programmable projects and ideas, created from everyday inspiration and curiosity. A space where I experiment.</p>
-                        <p><a class="btn btn-lg btn-primary" href="https://github.com/andreiixedev/RandomByteWorks">Learn more</a></p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Controale -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+<!-- Navbar mobil -->
+<div class="mobile-navbar" id="mobileNavbar">
+    <div class="d-flex">
+        <button id="themeToggleMobile" class="theme-toggle">🌙</button>
+        <div class="menu-btn" id="toggleMenu">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     </div>
+    <div class="menu-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="aboutme.html">About Me</a>
+        <a class="nav-link" href="projects.html">Projects</a>
+        <a class="nav-link" href="links.html">Links</a>
     </div>
-
-    <!-- CSS pentru overlay și adaptarea culorii textului -->
-    <style>
-        /* Overlay semitransparent pentru lizibilitate */
-        .carousel-item {
-            position: relative;
-        }
-
-        .carousel-item img {
-            object-fit: cover;
-            height: 500px;
-        }
-
-        .carousel-caption {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 10;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        /* Overlay pentru îmbunătățirea contrastului */
-        .carousel-item::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.3);
-            /* semi-transparent */
-            z-index: 5;
-        }
-
-        /* Text alb pe fundal închis */
-        .text-light-contrast {
-            color: white !important;
-        }
-
-        /* Text negru pe fundal deschis */
-        .text-dark-contrast {
-            color: black !important;
-        }
-
-        /* Stil de bază pentru textul din carusel */
-        .carousel-caption h1,
-        .carousel-caption p,
-        .carousel-caption a {
-            transition: color 0.3s ease;
-        }
-    </style>
-
-    <!-- Script pentru analiza imaginii și actualizarea contrastului textului -->
-    <script>
-        // Funcție pentru calcularea luminozității medii a unei imagini
-        function getAverageLuminance(imgElement, callback) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = imgElement.naturalWidth;
-            canvas.height = imgElement.naturalHeight;
-            ctx.drawImage(imgElement, 0, 0);
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            let totalLuminance = 0;
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i],
-                    g = data[i + 1],
-                    b = data[i + 2];
-                const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-                totalLuminance += luminance;
-            }
-
-            const avgLuminance = totalLuminance / (data.length / 4);
-            callback(avgLuminance);
-        }
-
-        // Actualizează contrastul textului pe baza luminozității imaginii
-        function updateTextContrastForSlide(slide) {
-            const img = slide.querySelector('img');
-            const caption = slide.querySelector('.carousel-caption');
-            if (!img || !caption) return;
-
-            getAverageLuminance(img, (luminance) => {
-                caption.classList.remove('text-light-contrast', 'text-dark-contrast');
-                if (luminance < 127) {
-                    caption.classList.add('text-light-contrast');
-                } else {
-                    caption.classList.add('text-dark-contrast');
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const carouselEl = document.querySelector('#myCarousel');
-
-            // Prima imagine
-            const firstSlide = carouselEl.querySelector('.carousel-item.active');
-            updateTextContrastForSlide(firstSlide);
-
-            // Când se schimbă slide-ul
-            carouselEl.addEventListener('slid.bs.carousel', (event) => {
-                const nextSlide = event.relatedTarget;
-                updateTextContrastForSlide(nextSlide);
-            });
-        });
-    </script>
-
-
-    <div class="album py-5">
-
-
-
-
-        <div class="container">
-            <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
-
-                <div class="row">
-                </div>
-
-
-
-
-                <div class="px-4 py-5 my-5 text-center">
-                    <h1 class="display-5 fw-bold">Closed <span>projects</span></h1>
-                    <div class="col-lg-6 mx-auto">
-                        <p class="lead mb-4">Projects I'm no longer working on</p>
-                    </div>
-
-                </div>
-                <h1 class="display-5 fw-bold">Web <span>projects</span></h1>
-                <div class="col-md-4">
-                    <div class="card mb-4 box-shadow">
-                        <img class="card-img-top" src="src/images/eol/Openmac.PNG">
-                        <div class="card-body">
-                            <h3><span>[OpenMac Website]</span></h3>
-                            <div class="d-flex justify-content-left">
-                                <span class="badge text-bg-warning rounded-pill">html</span>&nbsp;
-                                <span class="badge text-bg-warning rounded-pill">css</span>&nbsp;|&nbsp;
-                                <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
-
-                            </div>
-                            <br>
-                            <p class="card-text">The website was supposed to support any operating system, targeting Windows 95 and later, for a ClassiCube server.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                </div>
-                            </div>
+</div>
+    <!-- Secțiune Closed Projects -->
+    <section id="closed-projects" class="container py-5 fixed-section">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h1 class="display-5 fw-bold aesthetic-text">
+                    Things I’m Working <span class="colors">On</span>
+                </h1>
+            </div>
+        </div>
+        <div class="row g-4">
+            <!-- OpenMac Website -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card project-card h-100 rounded-4">
+                    <img src="src/images/projects/Classicube-PPC.png" class="card-img-top rounded-top-4" alt="ClassiCube-PPC screenshot" loading="lazy">
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="card-title colors">[ClassiCube-PPC]</h3>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge text-bg-warning rounded-pill">C</span>
+                            <span class="badge text-bg-warning rounded-pill">Assembly</span>
+                            <span class="badge text-bg-warning rounded-pill">C++</span>
+                            <span class="badge text-bg-warning rounded-pill">Objective-C</span>
+                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Mac OS 10.4+</span>
+                        </div>
+                        <p class="card-text flex-grow-1">ClassiCube-PPC is a fork of ClassiCube for PowerMacs with Mac OS X 10.4+.</p>
+                        <div class="mt-auto">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/ClassiCube-PPC" target="_blank" rel="noopener noreferrer">Source Code</a>
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/ClassiCube-PPC/releases" target="_blank" rel="noopener noreferrer">Releases</a>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-4">
-                    <div class="card mb-4 box-shadow">
-                        <img class="card-img-top" src="src/images/eol/contasib.ro.JPG">
-                        <div class="card-body">
-                            <h3><span>[contasib.ro Website]</span></h3>
-                            <div class="d-flex justify-content-left">
-                                <span class="badge text-bg-warning rounded-pill">Closed Source</span>&nbsp;|&nbsp;
-                                <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
-                            </div>
-                            <br>
-                            <p class="card-text">Fast and reliable services for car damage repairs and car rentals in Onești. Visit our website! :D</p>
-                            <br>
-                            <p class="card-text"><b>Reason:</b> The collaboration with this person has ended, due to the reasons he himself stated. I will no longer provide updates going forward.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                </div>
-                            </div>
+            </div>
+            <!-- contasib.ro -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card project-card h-100 rounded-4">
+                    <img src="src/images/projects/RBW_ScreenShot.PNG" class="card-img-top rounded-top-4" alt="RandomByteWorks screenshot" loading="lazy">
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="card-title colors">[RandomByteWorks]</h3>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Experimental</span>
                         </div>
-                    </div>
-                </div>
-
-
-                <div class="col-md-4">
-                    <div class="card mb-4 box-shadow">
-                        <img class="card-img-top" src="src/images/eol/legalicyandreiixe.PNG">
-                        <div class="card-body">
-                            <h3><span>[Legacy Andreiixe]</span></h3>
-                            <div class="d-flex justify-content-left">
-                                <span class="badge text-bg-warning rounded-pill">php</span>&nbsp;
-                                <span class="badge text-bg-warning rounded-pill">css</span>&nbsp;|&nbsp;
-                                <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
-                            </div>
-                            <br>
-                            <p class="card-text">Andreiixe Legalicy: built for systems without support for newer styles, catering to older operating systems like Internet Explorer 4-8 or Netscape.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card mb-4 box-shadow">
-                        <img class="card-img-top" src="src/images/eol/old.png">
-                        <div class="card-body">
-                            <h3><span>[Old Andreiixe Website]</span></h3>
-                            <div class="d-flex justify-content-left">
-                                <span class="badge text-bg-warning rounded-pill">html</span>&nbsp;
-                                <span class="badge text-bg-warning rounded-pill">css</span>&nbsp;|&nbsp;
-                                <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
-                            </div>
-                            <br>
-                            <p class="card-text">Ah, the nostalgic charm of my first website code :p</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                            </div>
+                        <p class="card-text flex-grow-1">Programmable projects and ideas, created from everyday inspiration and curiosity. A space where I experiment.</p>
+                        <div class="mt-auto">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/RandomByteWorks" target="_blank" rel="noopener noreferrer">Source Code</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!--Close Content Website-->
+    </section>
+    <!-- Secțiune Closed Projects -->
+    <section id="closed-projects" class="container py-5 fixed-section">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h1 class="display-5 fw-bold aesthetic-text">Closed <span class="colors">Projects</span></h1>
+                <p class="lead">Projects I'm no longer working on</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <!-- OpenMac Website -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card project-card h-100 rounded-4">
+                    <img src="src/images/projects/eol/OMW_CLP.PNG" class="card-img-top rounded-top-4" alt="OpenMac Website screenshot" loading="lazy">
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="card-title colors">[OpenMac Website]</h3>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge text-bg-warning rounded-pill">HTML</span>
+                            <span class="badge text-bg-warning rounded-pill">CSS</span>
+                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                        </div>
+                        <p class="card-text flex-grow-1">The website was supposed to support any operating system, targeting Windows 95 and later, for a ClassiCube server.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- contasib.ro -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card project-card h-100 rounded-4">
+                    <img src="src/images/projects/eol/contasib.ro_clp.JPG" class="card-img-top rounded-top-4" alt="contasib.ro Website screenshot" loading="lazy">
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="card-title colors">[contasib.ro Website]</h3>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge text-bg-warning rounded-pill">CSS</span>
+                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                        </div>
+                        <p class="card-text flex-grow-1">Fast and reliable services for car damage repairs and car rentals in Onești. Visit our website! :D</p>
+                        <div class="mt-auto">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/Car-damage-center-Page" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Legacy Andreiixe -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card project-card h-100 rounded-4">
+                    <img src="src/images/projects/eol/LA_CLP.PNG" class="card-img-top rounded-top-4" alt="Legacy Andreiixe screenshot" loading="lazy">
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="card-title colors">[Legacy Andreiixe]</h3>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge text-bg-warning rounded-pill">PHP</span>
+                            <span class="badge text-bg-warning rounded-pill">CSS</span>
+                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                        </div>
+                        <p class="card-text flex-grow-1">Andreiixe Legacy: built for systems without support for newer styles, catering to older operating systems like Internet Explorer 4-8 or Netscape.</p>
+                        <div class="mt-auto">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/LegalicyAndreiixe" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Old Andreiixe Website -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card project-card h-100 rounded-4">
+                    <img src="src/images/projects/eol/OAW_CLP.jpg" class="card-img-top rounded-top-4" alt="contasib.ro Website screenshot" loading="lazy">
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="card-title colors">[Old Andreiixe Website]</h3>
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <span class="badge text-bg-warning rounded-pill">CSS</span>
+                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                        </div>
+                        <p class="card-text flex-grow-1">Ah, the nostalgic charm of my first website code :p</p>
+                        <div class="mt-auto">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/andreiixe.rf.gd" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <p class="text-center mb-0">
+        © <span id="year"></span> andreiixe. All rights reserved.
+    </p>
+
+<script>
+    // Setează anul curent automat
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+<!-- Typed.js -->
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script src="src/js/script.js"></script>
+
 </body>
-
 </html>

@@ -1,208 +1,106 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
-
+<html lang="en">
 <head>
-    <!-- Title Website -->
-    <title>Andreiixe Website</title>
-
-    <!-- Icon Website -->
-    <link rel="shortcut icon" type="image/jpg" href="src/icon/andreiixe.ico" />
-
-    <!-- Viewport for mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="src/css/style.css">
-
-    <!-- Bootstrap imports -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    <!-- Model Viewer Library -->
-    <script type="module" src="src/js/model-viewer.min.js"></script>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-    <style>
-        .model-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        model-viewer {
-            width: 200px;
-            height: 200px;
-        }
-
-        .navbar {
-            width: auto;
-            border-radius: 0 0 16px 16px;
-            padding: 0.5rem 1rem;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Show button only on small screens */
-        @media (min-width: 992px) {
-            .d-nonelolmin {
-                display: block !important;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .d-nonelol {
-                display: none;
-            }
-        }
-
-        #last-playing {
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            margin: 20px 0;
-        }
-
-        .animated-gradient {
-            background: linear-gradient(#ff0000, #ff7300);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glass Navbar cu Dark/Light Mode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="src/css/style.css">
 </head>
-
 <body>
 
-    <!-- Navbar -->
-
-    <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary fixed-top mx-auto">
-        <div class="container-fluid text-success d-flex justify-content-between">
-            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#gfgnavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-center" id="gfgnavbar">
-                <ul class="navbar-nav mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.html">
-                            <button class="btn btn-dark rounded-pill px-3" type="button">Home</button>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about-me.html">
-                            <button class="btn btn-dark rounded-pill px-3" type="button">About</button>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="Projects.html">
-                            <button class="btn btn-dark rounded-pill px-3" type="button">Projects</button>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div id="desktopSwitch" class="form-check form-switch d-nonelolmin d-nonelol"></div>
-            <button id="themeSwitcherButton" class="btn">
-                <i id="themeIcon" class="bi bi-sun"></i>
-            </button>
-        </div>
+<!-- Navbar desktop -->
+<div class="container mt-4 desktop-navbar">
+    <nav class="navbar glass-navbar justify-content-between">
+        <button id="themeToggle" class="theme-toggle">🌙</button>
+        <ul class="navbar-nav flex-row gap-4">
+            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="aboutme.html">About Me</a></li>
+            <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+            <li class="nav-item"><a class="nav-link" href="links.html">Links</a></li>
+        </ul>
     </nav>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const htmlElement = document.documentElement;
-            const themeSwitcherButton = document.getElementById('themeSwitcherButton');
-            const themeIcon = document.getElementById('themeIcon');
+<!-- Navbar mobil -->
+<div class="mobile-navbar" id="mobileNavbar">
+    <div class="d-flex">
+        <button id="themeToggleMobile" class="theme-toggle">🌙</button>
+        <div class="menu-btn" id="toggleMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div class="menu-links">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="aboutme.html">About Me</a>
+        <a class="nav-link" href="projects.html">Projects</a>
+        <a class="nav-link" href="links.html">Links</a>
+    </div>
+</div>
 
-            function getThemeFromCookie() {
-                const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
-                return themeCookie ? themeCookie.split('=')[1] : 'light';
-            }
 
-            function setThemeCookie(theme) {
-                document.cookie = `theme=${theme}; path=/; max-age=31536000`;
-            }
+<!-- Secțiune Jumbotron -->
+<div class="container mt-5">
+    <div class="row g-4">
+        <!-- Jumbotron mare stânga -->
+        <div class="col-lg-8">
+            <div class="jumbotron-box p-5 rounded-4 text-center">
 
-            function updateTheme(theme) {
-                htmlElement.setAttribute('data-bs-theme', theme);
-                setThemeCookie(theme);
-                themeIcon.classList.toggle('bi-sun', theme === 'light');
-                themeIcon.classList.toggle('bi-moon', theme === 'dark');
-            }
+                <!-- Model 3D -->
+                <div class="model-container mb-4">
+                    <model-viewer src="src/models/Monitor001.glb" alt="Monitor"
+                                  auto-rotate auto-rotate-delay="0" rotation-per-second="45deg"
+                                  style="width:100%; height:400px;">
+                    </model-viewer>
+                </div>
 
-            const savedTheme = getThemeFromCookie();
-            updateTheme(savedTheme);
+                <!-- Text animat -->
+                <div class="px-4 py-3">
+                    <h1 class="display-5 fw-bold aesthetic-text">
+                        Welcome to&nbsp;<span class="auto-input colors"></span>
+                        <span class="cursor">|</span>
+                    </h1>
+                </div>
+            </div>
+        </div>
 
-            themeSwitcherButton.addEventListener('click', () => {
-                const currentTheme = htmlElement.getAttribute('data-bs-theme');
-                updateTheme(currentTheme === 'light' ? 'dark' : 'light');
-            });
-        });
-    </script>
-
-    <!-- Content Website -->
-    <div class="px-4 py-5 my-5 text-center">
-        <h1 class="display-5 fw-bold">Welcome to <span class="auto-input"></span></h1>
-        <p id="last-playing" class="lead mb-4">Fetching last played song...</p>
-        <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-        <script>
-            let typed = new Typed(".auto-input", {
-                strings: ["Andreiixe", "Macintosh", "Pikachu", ":)", "hell"],
-                typeSpeed: 100,
-                backSpeed: 100,
-                loop: true
-            });
-        </script>
-        <div class="model-container">
-            <model-viewer src="src/models/Monitor001.glb" alt="Monitor" auto-rotate auto-rotate-delay="0" rotation-per-second="45deg">
-            </model-viewer>
+        <!-- Doar commits GitHub în dreapta -->
+        <div class="col-lg-4 d-flex flex-column gap-4">
+            <div class="jumbotron-box p-4 rounded-4">
+                <h2 class="mb-3 colors">Commits GitHub (˶˃ ᵕ ˂˶)</h2>
+                <ul id="github-commits" class="list-unstyled"></ul>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="container">
-        <footer class="py-3 my-4">
-            <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-                <li class="nav-item"><a href="https://www.instagram.com/andreiixe/" class="nav-link px-2 text-muted">Social</a></li>
-                <li class="nav-item"><a href="https://github.com/andreiixedev" class="nav-link px-2 text-muted">Github</a></li>
-                <li class="nav-item"><a href="mailto: akaiandrei825@gmail.com" class="nav-link px-2 text-muted">Email</a></li>
-            </ul>
-            <p class="text-center text-muted">&copy; 2025 Andreiixe</p>
-        </footer>
+    <!-- Last.fm full width jos -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="jumbotron-box p-4 rounded-4 w-100">
+                <div id="last-playing"></div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script>
-        let lastFetchedTrackName = '';
+<!-- Footer -->
+<br>
+        <p class="text-center">
+            © <span id="year"></span> andreiixe. All rights reserved.
+        </p>
 
-        async function fetchLastPlaying() {
-            const username = 'andreiixe'; // 
-            const apiKey = '6f24e97412779daa6b6ae810f930e155'; // 
-            const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json`;
+<script>
+    // setează anul curent automat
+    document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                const track = data.recenttracks.track[0];
-                const nowPlaying = track['@attr'] && track['@attr'].nowplaying;
-                const trackName = track.name;
-                const artistName = track.artist['#text'];
+<!-- Model Viewer (Web Components) -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
-                // 
-                if (trackName !== lastFetchedTrackName) {
-                    lastFetchedTrackName = trackName;
-                    const trackInfo = nowPlaying ?
-                        `<img src='src/gifs/dance.gif'><br>Listening now: <strong class="animated-gradient">${trackName}</strong><em class="animated-gradient"> by ${artistName}</em>` :
-                        `Unfortunately I'm not listening to anything, I'm probably lost in the world ⭐`;
-                    document.getElementById('last-playing').innerHTML = trackInfo;
-                }
-            } catch (error) {
-                console.error('Error fetching Last.fm data:', error);
-                document.getElementById('last-playing').innerText = 'Unable to fetch Last.fm data.';
-            }
-        }
-
-        // 
-        fetchLastPlaying(); // 
-        setInterval(fetchLastPlaying, 10000); // 
-    </script>
-
-
+<!-- Typed.js -->
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script src="src/js/script.js"></script>
 </body>
-
 </html>

@@ -1,63 +1,421 @@
-.display-5 span {
-	background: linear-gradient( to right, #ff6a00, #ee0979);
-	-webkit-background-clip: text;
-	/* um to work a fix "Also define the standard property 'background-clip' for compatibility" */
-	-webkit-text-fill-color: transparent;
+body {
+    background: linear-gradient(135deg, #1b2735, #090a0f);
+    color: white;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    transition: background 0.5s ease, color 0.5s ease;
 }
+body:not(.light-mode) .desktop-navbar .nav-link:hover {
+    color: white !important;
+}
+body.light-mode .desktop-navbar .nav-link:hover {
+    color: black !important;
+}
+
+/* Light mode */
+body.light-mode {
+    background: linear-gradient(135deg, #ffffff, #f1f1f1);
+    color: black;
+}
+
+/* Navbar desktop */
+.glass-navbar {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 0.5rem 2rem;
+}
+
+/* Light mode navbar */
+body.light-mode .glass-navbar,
+body.light-mode .mobile-navbar {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.nav-link {
+    position: relative;
+    color: inherit;
+    font-weight: bold;
+}
+.nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, violet, pink);
+    transition: width 0.4s ease;
+    border-radius: 5px;
+}
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Dark/Light toggle button */
+.theme-toggle {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    margin-right: 1rem;
+    color: inherit;
+    transition: transform 0.3s ease;
+}
+.theme-toggle:hover {
+    transform: rotate(20deg);
+}
+
+/* Stil implicit (dark mode) */
+.jumbotron-box {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: background 0.5s ease, color 0.5s ease;
+}
+/* Light mode */
+body.light-mode .jumbotron-box {
+    background: rgba(0, 0, 0, 0.05);
+    color: black;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+/* Butoane adaptabile */
+body.light-mode .jumbotron-box .btn-outline-light {
+    border-color: black;
+    color: black;
+}
+body.light-mode .jumbotron-box .btn-outline-light:hover {
+    background: black;
+    color: white;
+}
+
+.footer {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    font-size: 0.9rem;
+    color: inherit;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Light mode */
+body.light-mode .footer {
+    background: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    color: inherit;
+}
+
+
+/* Navbar mobil compact */
+.mobile-navbar {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 55px; /* fixăm înălțimea */
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    border-radius: 50px;
+    padding: 0.8rem 1.2rem;
+    transition: all 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+    overflow: hidden;
+    z-index: 1000;
+    height: 75px;
+}
+.mobile-navbar.open {
+    bottom: 50%;
+    transform: translate(-50%, 50%);
+    border-radius: 20px;
+    height: auto;
+}
+.mobile-navbar .d-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+/* Butonul pentru schimbarea temei */
+#themeToggleMobile {
+    backdrop-filter: blur(20px); /* blur mai puternic */
+    border-radius: 50%;           /* rotund */
+    padding: 0.5rem 0.6rem;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Butonul hamburger */
+.menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40px;
+    height: 28px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Containerul cu link-uri */
+.menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    backdrop-filter: blur(20px); /* blur mai puternic */
+    border-radius: 15px;         /* colțuri rotunjite */
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.8rem 1rem;
+    margin-top: 0.5rem;
+}
+
+
+.model-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+}
+model-viewer {
+    width: 100%;
+    height: 400px;
+    background: transparent;
+}
+
+.colors {
+    background: linear-gradient( to right, #ff6a00, #ee0979);
+    -webkit-background-clip: text;
+    /* um to work a fix "Also define the standard property 'background-clip' for compatibility" */
+    -webkit-text-fill-color: transparent;
+}
+
+/* Text terminal fix */
+.auto-input {
+    white-space: nowrap;
+    display: inline-block;
+    font-size: 2rem;
+    font-family: 'Courier New', Courier, monospace;
+    color: inherit; /* se adaptează la body color */
+}
+
+/* Font terminal pentru tot textul (static + animat) */
+.terminal-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 2rem; /* dimensiune fixă */
+    white-space: nowrap;
+    color: inherit;
+}
+
+/* Font estetic și uniform */
+.aesthetic-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem; /* dimensiune fixă */
+    font-weight: 700;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+}
+
+/* Text animat */
+.auto-input {
+    display: inline-block;
+    font-family: inherit; /* preia fontul parinte */
+    font-size: inherit;
+    font-weight: inherit;
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.4s ease;
+}
+
+/* Cursor estetic */
+.cursor {
+    display: inline-block;
+    width: 1ch;
+    margin-left: 5px;
+    background-color: currentColor;
+    border-radius: 2px;
+    animation: blink 1s steps(1) infinite;
+}
+
+/* Blink cursor */
+@keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0; }
+}
+
+/* Glow subtil text animat (adaptabil dark/light mode) */
+body:not(.light-mode) .auto-input {
+    color: #ff6a00;
+    text-shadow: 0 0 1px #ff6a00;
+}
+body.light-mode .auto-input {
+    color: #ee0979;
+    text-shadow: 0 0 1px #ee0979;
+}
+
+
+
+
+
+
+/* GitHub commits feed - adaptabil dark/light mode */
+#github-commits li {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 4px solid #ff6a00;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s ease, color 0.5s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    color: inherit;
+}
+
+#github-commits li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+#github-commits li a {
+    text-decoration: none;
+    color: #ff6a00;
+    font-weight: 500;
+}
+
+#github-commits li a:hover {
+    text-decoration: underline;
+}
+
+/* Light mode overrides */
+body.light-mode #github-commits li {
+    background: rgba(0, 0, 0, 0.05);
+    border-left-color: #ee0979;
+    color: inherit;
+}
+
+body.light-mode #github-commits li a {
+    color: #ee0979;
+}
+
+
+
+/* Linkuri ascunse */
+.menu-links {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-top: 1rem;
+}
+.mobile-navbar.open .menu-links {
+    max-height: 300px;
+    opacity: 1;
+}
+/* Hamburger bars */
+.menu-btn span {
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background: white;
+    border-radius: 3px;
+    transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+body.light-mode .menu-btn span {
+    background: black;
+}
+.menu-btn span:nth-child(1) { top: 0; }
+.menu-btn span:nth-child(2) { top: 9px; }
+.menu-btn span:nth-child(3) { top: 18px; }
+.menu-btn.open span:nth-child(1) {
+    transform: rotate(45deg);
+    top: 9px;
+}
+.menu-btn.open span:nth-child(3) {
+    transform: rotate(-45deg);
+    top: 9px;
+}
+.menu-btn.open span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+/* Responsivitate */
+@media (min-width: 992px) { .mobile-navbar { display: none; } }
+@media (max-width: 991px) { .desktop-navbar { display: none; } .nav-link::after { display: none; } }
 
 @media (max-width: 768px) {
-	.hide-on-mobile {
-		display: none !important;
-	}
+    .aesthetic-text,
+    .terminal-text,
+    .auto-input {
+        white-space: normal !important;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        font-size: 1.4rem; /* micșorează puțin pe mobil */
+        line-height: 1.3;
+        text-align: center;
+    }
 }
 
-.feature-icon {
-	width: 4rem;
-	height: 4rem;
-	border-radius: .75rem;
+/* Carduri proiecte */
+.project-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: inherit;
+    transition: background 0.5s ease, color 0.5s ease, border 0.5s ease;
+}
+body.light-mode .project-card {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    color: inherit;
 }
 
-.icon-link>.bi {
-	margin-top: .125rem;
-	margin-left: .125rem;
-	fill: currentcolor;
-	transition: transform .25s ease-in-out;
+/* Modale */
+.modal-content.project-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: inherit;
+}
+body.light-mode .modal-content.project-card {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    color: inherit;
 }
 
-.icon-link:hover>.bi {
-	transform: translate(.25rem);
+/* Footer fix */
+footer, 
+.footer,
+body > p.text-center {
+    backdrop-filter: blur(8px);
+    font-size: 0.9rem;
+    color: inherit;
+    padding: 1rem;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+body.light-mode footer,
+body.light-mode .footer,
+body.light-mode body > p.text-center {
+    background: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    color: inherit;
 }
 
-.icon-square {
-	width: 3rem;
-	height: 3rem;
-	border-radius: .75rem;
+/* Badge-uri Bootstrap fixate */
+.badge {
+    transition: background 0.5s ease, color 0.5s ease, border 0.5s ease;
 }
-
-/* fix rezolution */
-
-@media (max-width: 786px) {
-	.imgaf {
-		min-width: 85%;
-		height: auto;
-	}
+body.light-mode .badge.text-bg-warning {
+    background-color: #ffd95a !important;
+    color: black !important;
 }
-
-/* issuse bug "About-me image not centered #2"*/
-
-.imgaf {
-	max-width: 35%;
-}
-
-/* video randomizer */
-
-.video-container {
-	width: 160px;
-	height: 160px;
-}
-
-.carousel-wrapper {
-	max-height: 500px;
-	/* sau orice valoare preferi: 800px, 75%, etc. */
-	height: 100%;
+body.light-mode .badge.text-bg-secondary {
+    background-color: #bbb !important;
+    color: black !important;
 }
