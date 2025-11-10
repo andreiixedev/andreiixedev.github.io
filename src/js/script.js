@@ -21,7 +21,7 @@ menuLinks.forEach(link => {
     });
 });
 
-// --- Dark/Light Mode ---
+
 function setTheme(light) {
     if (light) {
         body.classList.add('light-mode');
@@ -43,7 +43,6 @@ function toggleTheme() {
 themeBtn.addEventListener('click', toggleTheme);
 themeBtnMobile.addEventListener('click', toggleTheme);
 
-// Load theme from localStorage
 if (localStorage.getItem("theme") === "light") {
     setTheme(true);
 }
@@ -59,52 +58,71 @@ if (document.querySelector(".auto-input")) {
         span.style.transform = "translateY(20px) scale(0.8)";
 
         setTimeout(() => {
-            // Schimbă textul
+
             span.textContent = texts[index];
 
-            // Fade + slide + scale in
+ 
             span.style.opacity = 1;
             span.style.transform = "translateY(0) scale(1)";
 
-            // Next text
+
             index = (index + 1) % texts.length;
-            setTimeout(showNextText, 2500); // timp afișare text
-        }, 400); // timp animație out
+            setTimeout(showNextText, 2500); 
+        }, 400); 
     }
 
     showNextText();
 }
 
 
-// --- Fetch ultimele commits GitHub ---
+
 async function fetchGitHubCommits() {
     try {
         const response = await fetch('https://api.andreiixe.website/api/github');
-        const commits = await response.json();
+        const commit = await response.json();
 
-        const ul = document.getElementById('github-commits');
-        ul.innerHTML = '';
+        const container = document.getElementById('github-commits');
+        container.innerHTML = '';
 
-        commits.forEach(commit => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <div>
-                    <strong>${commit.repo}</strong><br>
-                    <a href="${commit.url}" target="_blank">${commit.message}</a>
-                </div>
-            `;
-            ul.appendChild(li);
+
+        if (!commit || !commit.repo || !commit.message) {
+            container.innerText = 'Nu există commituri recente.';
+            return;
+        }
+
+
+        const commitDate = new Date(commit.date);
+        const dateString = commitDate.toLocaleString('ro-RO', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
         });
+
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div>
+                    <strong>${commit.repo}</strong>
+                    ${commit.is_new ? '<span style="color: limegreen; font-weight: bold;">🟢 New</span>' : ''}
+                </div>
+                <a href="${commit.url}" target="_blank" style="color: #00bfff;">${commit.message}</a>
+                <small style="opacity: 0.7;">${dateString}</small>
+            </div>
+        `;
+
+        container.appendChild(li);
     } catch (err) {
         console.error('GitHub fetch error:', err);
-        document.getElementById('github-commits').innerText = 'Unable to fetch commits.';
+        document.getElementById('github-commits').innerText = 'Unable to fetch latest commit.';
     }
 }
-// Fetch imediat și la fiecare 60 sec
-fetchGitHubCommits();
-setInterval(fetchGitHubCommits, 1800000); // refresh la 30 minute
 
-// --- Fetch ultimele melodii Last.fm ---
+fetchGitHubCommits();
+setInterval(fetchGitHubCommits, 1800000);
+
+
 async function fetchLastPlaying() {
     try {
         const response = await fetch('https://api.andreiixe.website/api/lastfm');
@@ -149,7 +167,6 @@ async function fetchLastPlaying() {
 }
 
 
-// Fetch imediat și la fiecare 10 sec
 fetchLastPlaying();
 setInterval(fetchLastPlaying, 10000);
 
