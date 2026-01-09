@@ -1,204 +1,418 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects - Andreiixe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="src/css/style.css">
+    <style>
+        .project-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition);
+            height: 100%;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+        
+        .project-card img {
+            height: 180px;
+            object-fit: cover;
+            width: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .project-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-text {
+            color: var(--dark);
+            opacity: 0.9;
+            line-height: 1.6;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+        }
+        
+        .text-bg-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.25)) !important;
+            color: #f59e0b !important;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .bg-info-subtle {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(6, 182, 212, 0.25)) !important;
+            color: var(--accent) !important;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            transition: var(--transition);
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .section-title h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-title .lead {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .projects-section {
+            padding: 4rem 0;
+        }
+        
+        .closed-projects {
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.03) 0%, 
+                rgba(139, 92, 246, 0.03) 100%);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+        
+        .status-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .status-closed {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+        
+        .project-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+    </style>
 </head>
-<body>
-<!-- Navbar desktop -->
-<div class="container mt-4 desktop-navbar">
-    <nav class="navbar glass-navbar justify-content-between">
-        <button id="themeToggle" class="theme-toggle">🌙</button>
-        <ul class="navbar-nav flex-row gap-4">
-            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="aboutme.html">About Me</a></li>
-            <li class="nav-item"><a class="nav-link" href="Projects.html">Projects</a></li>
-            <li class="nav-item"><a class="nav-link" href="links.html">Links</a></li>
-        </ul>
-    </nav>
-</div>
+<body data-theme="dark">
 
-<!-- Navbar mobil -->
+<!-- Navbar desktop -->
+<header class="container mt-4 desktop-navbar">
+    <nav class="navbar glass-navbar justify-content-between">
+        <div class="brand-logo">
+            <span class="logo-text">Andreiixe</span>
+            <span class="logo-dot">.</span>
+        </div>
+        <ul class="navbar-nav flex-row gap-4">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="aboutme.html"><i class="fas fa-user"></i> About</a></li>
+            <li class="nav-item"><a class="nav-link active" href="Projects.html"><i class="fas fa-code"></i> Projects</a></li>
+            <li class="nav-item"><a class="nav-link" href="links.html"><i class="fas fa-link"></i> Links</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button id="themeToggle" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<!-- Navbar mobile -->
 <div class="mobile-navbar" id="mobileNavbar">
-    <div class="d-flex">
-        <button id="themeToggleMobile" class="theme-toggle">🌙</button>
-        <div class="menu-btn" id="toggleMenu">
-            <span></span>
-            <span></span>
-            <span></span>
+    <div class="mobile-header">
+        <div class="brand-logo">
+            <span class="logo-text">Andreiixe</span>
+            <span class="logo-dot">.</span>
+        </div>
+        <div class="mobile-actions">
+            <button id="themeToggleMobile" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="menu-btn" id="toggleMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </div>
     <div class="menu-links">
-        <a class="nav-link" href="index.html">Home</a>
-        <a class="nav-link" href="aboutme.html">About Me</a>
-        <a class="nav-link" href="Projects.html">Projects</a>
-        <a class="nav-link" href="links.html">Links</a>
+        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a class="nav-link" href="aboutme.html"><i class="fas fa-user"></i> About Me</a>
+        <a class="nav-link active" href="Projects.html"><i class="fas fa-code"></i> Projects</a>
+        <a class="nav-link" href="links.html"><i class="fas fa-link"></i> Links</a>
     </div>
 </div>
-    <!-- Secțiune Closed Projects -->
-    <section id="closed-projects" class="container py-5 fixed-section">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center mb-5">
-                <h1 class="display-5 fw-bold aesthetic-text">
-                    Things I’m Working <span class="colors">On</span>
-                </h1>
-            </div>
+
+<!-- Main Content -->
+<main class="container mt-5">
+    <!-- Active Projects Section -->
+    <section class="projects-section">
+        <div class="section-title">
+            <h1 class="aesthetic-text">
+                Things I'm Working <span class="colors">On</span>
+            </h1>
         </div>
+        
         <div class="row g-4">
-            <!-- OpenMac Website -->
+            <!-- ClassiCube-PPC -->
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/Classicube-PPC.png" class="card-img-top rounded-top-4" alt="ClassiCube-PPC screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[ClassiCube-PPC]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge text-bg-warning rounded-pill">C</span>
-                            <span class="badge text-bg-warning rounded-pill">Assembly</span>
-                            <span class="badge text-bg-warning rounded-pill">C++</span>
-                            <span class="badge text-bg-warning rounded-pill">Objective-C</span>
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Mac OS 10.4+</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-active">ACTIVE</span>
+                        <img src="src/images/projects/Classicube-PPC.png" class="card-img-top" alt="ClassiCube-PPC screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[ClassiCube-PPC]</h3>
+                        <div class="project-meta">
+                            <span class="badge text-bg-warning">C</span>
+                            <span class="badge text-bg-warning">Assembly</span>
+                            <span class="badge text-bg-warning">C++</span>
+                            <span class="badge text-bg-warning">Objective-C</span>
+                            <span class="badge bg-info-subtle">Mac OS 10.4+</span>
                         </div>
-                        <p class="card-text flex-grow-1">ClassiCube-PPC is a fork of ClassiCube for PowerMacs with Mac OS X 10.4+.</p>
-                        <div class="mt-auto">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://macintoshgarden.org/games/minecraft-152" target="_blank" rel="noopener noreferrer">Releases</a>
+                        <p class="card-text">ClassiCube-PPC is a fork of ClassiCube for PowerMacs with Mac OS X 10.4+.</p>
+                        <div class="project-actions">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://macintoshgarden.org/games/minecraft-152" target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-external-link-alt"></i> Releases
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- random -->
+            
+            <!-- RandomByteWorks -->
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/RBW_ScreenShot.PNG" class="card-img-top rounded-top-4" alt="RandomByteWorks screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[RandomByteWorks]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Experimental</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-active">ACTIVE</span>
+                        <img src="src/images/projects/RBW_ScreenShot.PNG" class="card-img-top" alt="RandomByteWorks screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[RandomByteWorks]</h3>
+                        <div class="project-meta">
+                            <span class="badge bg-info-subtle">Experimental</span>
                         </div>
-                        <p class="card-text flex-grow-1">Programmable projects and ideas, created from everyday inspiration and curiosity. A space where I experiment.</p>
-                        <div class="mt-auto">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/RandomByteWorks" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        <p class="card-text">Programmable projects and ideas, created from everyday inspiration and curiosity. A space where I experiment.</p>
+                        <div class="project-actions">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/RandomByteWorks" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- proxy-->
+            
+            <!-- Proxy-PPC for ClassiCube -->
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/RBW_ScreenShot.PNG" class="card-img-top rounded-top-4" alt="RandomByteWorks screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[Proxy-PPC for ClassiCube]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Experimental</span>
-                            <span class="badge text-bg-warning rounded-pill">Golang</span>
-                            <span class="badge text-bg-warning rounded-pill">Python</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-active">ACTIVE</span>
+                        <img src="src/images/projects/RBW_ScreenShot.PNG" class="card-img-top" alt="RandomByteWorks screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[Proxy-PPC for ClassiCube]</h3>
+                        <div class="project-meta">
+                            <span class="badge bg-info-subtle">Experimental</span>
+                            <span class="badge text-bg-warning">Golang</span>
+                            <span class="badge text-bg-warning">Python</span>
                         </div>
-                        <p class="card-text flex-grow-1">A lightweight HTTP proxy server written in Go using the Gin framework. It supports file forwarding, release version tracking, and download statistics, enabling the download of ClassiCube-PPC resources on older systems (it can also be used for other purposes).</p>
-                        <div class="mt-auto">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/Proxy-PPC" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        <p class="card-text">A lightweight HTTP proxy server written in Go using the Gin framework. It supports file forwarding, release version tracking, and download statistics, enabling the download of ClassiCube-PPC resources on older systems (it can also be used for other purposes).</p>
+                        <div class="project-actions">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/Proxy-PPC" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Secțiune Closed Projects -->
-    <section id="closed-projects" class="container py-5 fixed-section">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center mb-5">
-                <h1 class="display-5 fw-bold aesthetic-text">Closed <span class="colors">Projects</span></h1>
-                <p class="lead">Projects I'm no longer working on</p>
-            </div>
+    
+    <!-- Closed Projects Section -->
+    <section class="projects-section closed-projects">
+        <div class="section-title">
+            <h1 class="aesthetic-text">Closed <span class="colors">Projects</span></h1>
+            <p class="lead">Projects I'm no longer working on</p>
         </div>
+        
         <div class="row g-4">
             <!-- OpenMac Website -->
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/eol/OMW_CLP.PNG" class="card-img-top rounded-top-4" alt="OpenMac Website screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[OpenMac Website]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge text-bg-warning rounded-pill">HTML</span>
-                            <span class="badge text-bg-warning rounded-pill">CSS</span>
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-closed">CLOSED</span>
+                        <img src="src/images/projects/eol/OMW_CLP.PNG" class="card-img-top" alt="OpenMac Website screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[OpenMac Website]</h3>
+                        <div class="project-meta">
+                            <span class="badge text-bg-warning">HTML</span>
+                            <span class="badge text-bg-warning">CSS</span>
+                            <span class="badge bg-info-subtle">Web</span>
                         </div>
-                        <p class="card-text flex-grow-1">The website was supposed to support any operating system, targeting Windows 95 and later, for a ClassiCube server.</p>
+                        <p class="card-text">The website was supposed to support any operating system, targeting Windows 95 and later, for a ClassiCube server.</p>
                     </div>
                 </div>
             </div>
+            
             <!-- contasib.ro -->
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/eol/contasib.ro_clp.JPG" class="card-img-top rounded-top-4" alt="contasib.ro Website screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[contasib.ro Website]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge text-bg-warning rounded-pill">CSS</span>
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-closed">CLOSED</span>
+                        <img src="src/images/projects/eol/contasib.ro_clp.JPG" class="card-img-top" alt="contasib.ro Website screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[contasib.ro Website]</h3>
+                        <div class="project-meta">
+                            <span class="badge text-bg-warning">CSS</span>
+                            <span class="badge bg-info-subtle">Web</span>
                         </div>
-                        <p class="card-text flex-grow-1">Fast and reliable services for car damage repairs and car rentals in Onești. Visit our website! :D</p>
-                        <div class="mt-auto">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/Car-damage-center-Page" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        <p class="card-text">Fast and reliable services for car damage repairs and car rentals in Onești. Visit our website! :D</p>
+                        <div class="project-actions">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/Car-damage-center-Page" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <!-- Legacy Andreiixe -->
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/eol/LA_CLP.PNG" class="card-img-top rounded-top-4" alt="Legacy Andreiixe screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[Legacy Andreiixe]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge text-bg-warning rounded-pill">PHP</span>
-                            <span class="badge text-bg-warning rounded-pill">CSS</span>
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-closed">CLOSED</span>
+                        <img src="src/images/projects/eol/LA_CLP.PNG" class="card-img-top" alt="Legacy Andreiixe screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[Legacy Andreiixe]</h3>
+                        <div class="project-meta">
+                            <span class="badge text-bg-warning">PHP</span>
+                            <span class="badge text-bg-warning">CSS</span>
+                            <span class="badge bg-info-subtle">Web</span>
                         </div>
-                        <p class="card-text flex-grow-1">Andreiixe Legacy: built for systems without support for newer styles, catering to older operating systems like Internet Explorer 4-8 or Netscape.</p>
-                        <div class="mt-auto">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/LegalicyAndreiixe" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        <p class="card-text">Andreiixe Legacy: built for systems without support for newer styles, catering to older operating systems like Internet Explorer 4-8 or Netscape.</p>
+                        <div class="project-actions">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/LegalicyAndreiixe" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Old Andreiixe Website -->
+            
             <div class="col-md-6 col-lg-3">
-                <div class="card project-card h-100 rounded-4">
-                    <img src="src/images/projects/eol/OAW_CLP.jpg" class="card-img-top rounded-top-4" alt="contasib.ro Website screenshot" loading="lazy">
-                    <div class="card-body d-flex flex-column">
-                        <h3 class="card-title colors">[Old Andreiixe Website]</h3>
-                        <div class="d-flex flex-wrap gap-1 mb-3">
-                            <span class="badge text-bg-warning rounded-pill">CSS</span>
-                            <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Web</span>
+                <div class="project-card">
+                    <div class="position-relative">
+                        <span class="status-badge status-closed">CLOSED</span>
+                        <img src="src/images/projects/eol/OAW_CLP.jpg" class="card-img-top" alt="Old Andreiixe Website screenshot" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">[Old Andreiixe Website]</h3>
+                        <div class="project-meta">
+                            <span class="badge text-bg-warning">CSS</span>
+                            <span class="badge bg-info-subtle">Web</span>
                         </div>
-                        <p class="card-text flex-grow-1">Ah, the nostalgic charm of my first website code :p</p>
-                        <div class="mt-auto">
-                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/andreiixe.rf.gd" target="_blank" rel="noopener noreferrer">Source Code</a>
+                        <p class="card-text">Ah, the nostalgic charm of my first website code :p</p>
+                        <div class="project-actions">
+                            <a class="btn btn-outline-primary btn-sm rounded-pill" href="https://github.com/andreiixedev/andreiixe.rf.gd" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-github"></i> Source Code
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+</main>
 
-    <!-- Footer -->
-    <p class="text-center mb-0">
-        © <span id="year"></span> andreiixe. All rights reserved.
-    </p>
+<!-- Footer -->
+<footer class="container mt-5">
+    <div class="footer-content">
+        <div class="social-links">
+            <a href="https://github.com/andreiixe" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+        </div>
+        <p class="text-center mt-3">
+            © <span id="year"></span> andreiixe. All rights reserved.
+        </p>
+    </div>
+</footer>
 
 <script>
-    // Setează anul curent automat
     document.getElementById("year").textContent = new Date().getFullYear();
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPage = window.location.pathname.split('/').pop();
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
+        });
+    });
 </script>
 
-<!-- Typed.js -->
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 <script src="src/js/script.js"></script>
-
 </body>
 </html>

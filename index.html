@@ -5,102 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home - Andreiixe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="src/css/style.css">
 </head>
-<body>
+<body data-theme="dark">
 
 <!-- Navbar desktop -->
-<div class="container mt-4 desktop-navbar">
+<header class="container mt-4 desktop-navbar">
     <nav class="navbar glass-navbar justify-content-between">
-        <button id="themeToggle" class="theme-toggle">🌙</button>
+        <div class="brand-logo">
+            <span class="logo-text">Andreiixe</span>
+            <span class="logo-dot">.</span>
+        </div>
         <ul class="navbar-nav flex-row gap-4">
-            <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="aboutme.html">About Me</a></li>
-            <li class="nav-item"><a class="nav-link" href="Projects.html">Projects</a></li>
-            <li class="nav-item"><a class="nav-link" href="links.html">Links</a></li>
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="aboutme.html"><i class="fas fa-user"></i> About</a></li>
+            <li class="nav-item"><a class="nav-link" href="Projects.html"><i class="fas fa-code"></i> Projects</a></li>
+            <li class="nav-item"><a class="nav-link" href="links.html"><i class="fas fa-link"></i> Links</a></li>
         </ul>
+        <div class="nav-actions">
+            <button id="themeToggle" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
     </nav>
-</div>
+</header>
 
-<!-- Navbar mobil -->
+<!-- Navbar mobile -->
 <div class="mobile-navbar" id="mobileNavbar">
-    <div class="d-flex">
-        <button id="themeToggleMobile" class="theme-toggle">🌙</button>
-        <div class="menu-btn" id="toggleMenu">
-            <span></span>
-            <span></span>
-            <span></span>
+    <div class="mobile-header">
+        <div class="brand-logo">
+            <span class="logo-text">Andreiixe</span>
+            <span class="logo-dot">.</span>
+        </div>
+        <div class="mobile-actions">
+            <button id="themeToggleMobile" class="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="menu-btn" id="toggleMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </div>
     <div class="menu-links">
-        <a class="nav-link" href="index.html">Home</a>
-        <a class="nav-link" href="aboutme.html">About Me</a>
-        <a class="nav-link" href="Projects.html">Projects</a>
-        <a class="nav-link" href="links.html">Links</a>
+        <a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a class="nav-link" href="aboutme.html"><i class="fas fa-user"></i> About Me</a>
+        <a class="nav-link" href="Projects.html"><i class="fas fa-code"></i> Projects</a>
+        <a class="nav-link" href="links.html"><i class="fas fa-link"></i> Links</a>
     </div>
 </div>
 
-
-<!-- Secțiune Jumbotron -->
-<div class="container mt-5">
+<!-- Main Content -->
+<main class="container mt-5">
     <div class="row g-4">
-        <!-- Jumbotron mare stânga -->
+        <!-- Hero Section -->
         <div class="col-lg-8">
-            <div class="jumbotron-box p-5 rounded-4 text-center">
-
+            <div class="hero-card p-5 rounded-4">
                 <!-- Model 3D -->
                 <div class="model-container mb-4">
                     <model-viewer src="src/models/Monitor001.glb" alt="Monitor"
                                   auto-rotate auto-rotate-delay="0" rotation-per-second="45deg"
-                                  style="width:100%; height:400px;">
+                                  style="width:100%; height:400px;"
+                                  camera-controls touch-action="pan-y">
                     </model-viewer>
                 </div>
 
-                <!-- Text animat -->
+                <!-- Animated Text -->
                 <div class="px-4 py-3">
                     <h1 class="display-5 fw-bold aesthetic-text">
                         Welcome to&nbsp;<span class="auto-input colors"></span>
                         <span class="cursor">|</span>
                     </h1>
+                    <p class="lead mt-3">Full-Stack Developer & Creative Technologist</p>
                 </div>
             </div>
         </div>
 
-        <!-- Doar commits GitHub în dreapta -->
+        <!-- GitHub Commits -->
         <div class="col-lg-4 d-flex flex-column gap-4">
-            <div class="jumbotron-box p-4 rounded-4">
-                <h2 class="mb-3 colors">Commits GitHub (˶˃ ᵕ ˂˶)</h2>
-                <ul id="github-commits" class="list-unstyled"></ul>
+            <div class="stats-card p-4 rounded-4">
+                <div class="card-header">
+                    <h2><i class="fab fa-github"></i> Recent Commits</h2>
+                    <div class="pulse"></div>
+                </div>
+                <ul id="github-commits" class="list-unstyled mt-3"></ul>
+                <div class="card-footer">
+                    <a href="https://github.com/andreiixe" target="_blank" class="btn-view-all">
+                        View All <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Last.fm full width jos -->
+    <!-- Last.fm Section -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="jumbotron-box p-4 rounded-4 w-100">
-                <div id="last-playing"></div>
+            <div class="music-card p-4 rounded-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-music"></i> Currently Playing</h3>
+                    <div class="equalizer">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <div id="last-playing" class="music-content"></div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <!-- Footer -->
-<br>
-        <p class="text-center">
+<footer class="container mt-5">
+    <div class="footer-content">
+        <div class="social-links">
+            <a href="https://github.com/andreiixe" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+        </div>
+        <p class="text-center mt-3">
             © <span id="year"></span> andreiixe. All rights reserved.
         </p>
+    </div>
+</footer>
 
 <script>
-    // setează anul curent automat
     document.getElementById("year").textContent = new Date().getFullYear();
 </script>
 
-<!-- Model Viewer (Web Components) -->
+<!-- Scripts -->
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
-<!-- Typed.js -->
-<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 <script src="src/js/script.js"></script>
 </body>
 </html>
