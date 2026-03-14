@@ -1,0 +1,43 @@
+{
+  "stats": {
+    "totalUpdates": 1,
+    "featuresAdded": 2,
+    "bugsFixed": 0,
+    "improvements": 1
+  },
+  "entries": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-03-14",
+      "title": "Initial Release",
+      "icon": "star",
+      "changes": [
+        {
+          "type": "added",
+          "icon": "leaf",
+          "description": "Revamp website"
+        },
+        {
+          "type": "improved",
+          "icon": "leaf",
+          "description": "Design"
+        },
+        {
+          "type": "added",
+          "icon": "leaf",
+          "description": "Animated favicon"
+        }
+      ]
+    }
+  ],
+  "futureFeatures": [
+    {
+      "icon": "✉️ envelope",
+      "name": "Music Player"
+    },
+    {
+      "icon": "⭐ star",
+      "name": "GuestBook"
+    }
+  ]
+}
