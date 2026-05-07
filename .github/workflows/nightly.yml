@@ -1,0 +1,118 @@
+name: Nightly Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - "changelog-software/**"
+      - ".github/workflows/nightly.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: changelog-software-nightly
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows
+            output: AndreiixeDevStudio.exe
+            archive: AndreiixeDevStudio-Windows.zip
+          - os: ubuntu-latest
+            name: Linux
+            output: AndreiixeDevStudio
+            archive: AndreiixeDevStudio-Linux.zip
+          - os: macos-latest
+            name: macOS
+            output: AndreiixeDevStudio
+            archive: AndreiixeDevStudio-macOS.zip
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        working-directory: changelog-software
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.x"
+          cache: true
+          cache-dependency-path: changelog-software/go.sum
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build Windows
+        if: matrix.name == 'Windows'
+        run: go build -ldflags="-s -w -H=windowsgui" -o ${{ matrix.output }} main.go
+
+      - name: Build Linux/macOS
+        if: matrix.name != 'Windows'
+        run: go build -ldflags="-s -w" -o ${{ matrix.output }} main.go
+
+      - name: Package Windows
+        if: matrix.name == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path ${{ matrix.output }}, changelog.json, projects.json -DestinationPath ../${{ matrix.archive }}
+
+      - name: Package Linux/macOS
+        if: matrix.name != 'Windows'
+        run: |
+          zip -r ../${{ matrix.archive }} ${{ matrix.output }} changelog.json projects.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.archive }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Get commit info
+        id: info
+        run: |
+          echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "date=$(git log -1 --format=%cd --date=format:'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "msg=$(git log -1 --format=%s)" >> $GITHUB_OUTPUT
+          echo "author=$(git log -1 --format=%an)" >> $GITHUB_OUTPUT
+
+      - name: Update Nightly Release
+        uses: andelf/nightly-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly
+          name: "🌙 AndreiixeDev Studio - Nightly"
+          body: |
+            Automatic nightly build.
+
+            Commit: `${{ steps.info.outputs.hash }}`
+            Author: ${{ steps.info.outputs.author }}
+            Date: ${{ steps.info.outputs.date }}
+            Message: ${{ steps.info.outputs.msg }}
+
+            Downloads:
+            - Windows
+            - Linux
+            - macOS
+          files: artifacts/*.zip
