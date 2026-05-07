@@ -24,14 +24,11 @@ jobs:
             name: Windows
             output: AndreiixeDevStudio.exe
             archive: AndreiixeDevStudio-Windows.zip
+
           - os: ubuntu-latest
             name: Linux
             output: AndreiixeDevStudio
             archive: AndreiixeDevStudio-Linux.zip
-          - os: macos-latest
-            name: macOS
-            output: AndreiixeDevStudio
-            archive: AndreiixeDevStudio-macOS.zip
 
     runs-on: ${{ matrix.os }}
 
@@ -40,36 +37,45 @@ jobs:
         working-directory: changelog-software
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
           go-version: "1.25.x"
           cache: true
           cache-dependency-path: changelog-software/go.sum
 
-      - name: Install dependencies
+      - name: Download dependencies
         run: go mod download
 
       - name: Build Windows
         if: matrix.name == 'Windows'
         run: go build -ldflags="-s -w -H=windowsgui" -o ${{ matrix.output }} main.go
 
-      - name: Build Linux/macOS
-        if: matrix.name != 'Windows'
+      - name: Build Linux
+        if: matrix.name == 'Linux'
         run: go build -ldflags="-s -w" -o ${{ matrix.output }} main.go
 
       - name: Package Windows
         if: matrix.name == 'Windows'
         shell: pwsh
-        run: Compress-Archive -Path ${{ matrix.output }}, changelog.json, projects.json -DestinationPath ../${{ matrix.archive }}
-
-      - name: Package Linux/macOS
-        if: matrix.name != 'Windows'
         run: |
-          zip -r ../${{ matrix.archive }} ${{ matrix.output }} changelog.json projects.json
+          Compress-Archive `
+            -Path ${{ matrix.output }}, changelog.json, projects.json `
+            -DestinationPath ../${{ matrix.archive }}
 
-      - uses: actions/upload-artifact@v4
+      - name: Package Linux
+        if: matrix.name == 'Linux'
+        run: |
+          zip -r ../${{ matrix.archive }} \
+            ${{ matrix.output }} \
+            changelog.json \
+            projects.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
           path: ${{ matrix.archive }}
@@ -79,11 +85,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
@@ -104,15 +112,20 @@ jobs:
           tag_name: nightly
           name: "🌙 AndreiixeDev Studio - Nightly"
           body: |
-            Automatic nightly build.
+            ## Automatic nightly build
 
-            Commit: `${{ steps.info.outputs.hash }}`
-            Author: ${{ steps.info.outputs.author }}
-            Date: ${{ steps.info.outputs.date }}
-            Message: ${{ steps.info.outputs.msg }}
+            **Commit:** `${{ steps.info.outputs.hash }}`
+            **Author:** ${{ steps.info.outputs.author }}
+            **Date:** ${{ steps.info.outputs.date }}
 
-            Downloads:
+            ### Latest commit message
+            ${{ steps.info.outputs.msg }}
+
+            ### Included builds
             - Windows
             - Linux
-            - macOS
-          files: artifacts/*.zip
+
+            Generated automatically from:
+            `changelog-software/`
+          files: |
+            artifacts/*.zip
