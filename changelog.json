@@ -1,11 +1,24 @@
 {
   "stats": {
-    "totalUpdates": 1,
+    "totalUpdates": 2,
     "featuresAdded": 2,
     "bugsFixed": 0,
     "improvements": 1
   },
   "entries": [
+    {
+      "version": "v1.0.01",
+      "date": "2026-05-08",
+      "title": "Updated AndreiixeDev. Studio",
+      "icon": "🛠️",
+      "changes": [
+        {
+          "type": "changed",
+          "icon": "👾",
+          "description": "Updated software design and website editing"
+        }
+      ]
+    },
     {
       "version": "v1.0.0",
       "date": "2026-03-14",

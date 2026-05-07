@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -18,7 +19,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-// Data structures - keeping it organized like my desk (mostly)
 type Change struct {
 	Type        string `json:"type"`
 	Icon        string `json:"icon"`
@@ -69,1199 +69,1181 @@ type Project struct {
 	Links        ProjectLinks `json:"links"`
 }
 
-type ProjectsData struct {
-	Projects   []Project `json:"projects"`
-	Categories []string  `json:"categories"`
-	Settings   struct {
-		ShowFeaturedOnly bool `json:"showFeaturedOnly"`
-		ItemsPerPage     int  `json:"itemsPerPage"`
-	} `json:"settings"`
+type ProjectsSettings struct {
+	ShowFeaturedOnly bool `json:"showFeaturedOnly"`
+	ItemsPerPage     int  `json:"itemsPerPage"`
 }
 
-var (
+type ProjectsData struct {
+	Projects   []Project        `json:"projects"`
+	Categories []string         `json:"categories"`
+	Settings   ProjectsSettings `json:"settings"`
+}
+
+const (
 	changelogFile = "changelog.json"
 	projectsFile  = "projects.json"
-	currentData   Changelog
-	projectsData  ProjectsData
-	mainWindow    fyne.Window
 )
 
-// Track selected project
 var (
-	selectedProjectIndex int = -1
-	selectedProject      Project
+	currentData          Changelog
+	projectsData         ProjectsData
+	mainWindow           fyne.Window
+	selectedProjectIndex = -1
+	isDarkMode           = false
+
+	// Neumorphic from index.html 
+	bgColor      = color.NRGBA{R: 247, G: 242, B: 233, A: 255} // --bg-primary
+	surfaceColor = color.NRGBA{R: 240, G: 232, B: 220, A: 255} // --bg-secondary
+	cardColor    = color.NRGBA{R: 229, G: 217, B: 204, A: 255} // --bg-tertiary
+	borderColor  = color.NRGBA{R: 214, G: 201, B: 184, A: 255}
+	accentColor  = color.NRGBA{R: 184, G: 123, B: 93, A: 255}  // --accent
+	mutedText    = color.NRGBA{R: 158, G: 125, B: 107, A: 255} // --text-muted
+	primaryText  = color.NRGBA{R: 74, G: 74, B: 74, A: 255}    // --text-primary
+	dangerColor  = color.NRGBA{R: 180, G: 78, B: 70, A: 255}
+	successColor = color.NRGBA{R: 108, G: 145, B: 95, A: 255}
+	warningColor = color.NRGBA{R: 194, G: 143, B: 79, A: 255}
 )
 
-// Modern color palette
-var (
-	darkBg        = color.NRGBA{R: 18, G: 18, B: 24, A: 255}      // Deeper dark
-	darkSurface   = color.NRGBA{R: 30, G: 30, B: 38, A: 255}      // Slightly lighter
-	darkCard      = color.NRGBA{R: 38, G: 38, B: 46, A: 255}      // Card background
-	darkBorder    = color.NRGBA{R: 55, G: 55, B: 65, A: 255}      // Border color
-	accentBlue    = color.NRGBA{R: 0, G: 122, B: 255, A: 255}     // Vibrant blue
-	accentGreen   = color.NRGBA{R: 80, G: 200, B: 80, A: 255}     // Fresh green
-	accentRed     = color.NRGBA{R: 255, G: 69, B: 58, A: 255}     // iOS-style red
-	accentOrange  = color.NRGBA{R: 255, G: 159, B: 10, A: 255}    // Warm orange
-	textPrimary   = color.NRGBA{R: 245, G: 245, B: 250, A: 255}   // Almost white
-	textSecondary = color.NRGBA{R: 160, G: 160, B: 180, A: 255}   // Subtle gray
-)
+type modernTheme struct{}
+
+func (modernTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
+	switch name {
+	case theme.ColorNameBackground:
+		return bgColor
+	case theme.ColorNameButton:
+		return surfaceColor
+	case theme.ColorNameDisabledButton:
+		return cardColor
+	case theme.ColorNameForeground:
+		return primaryText
+	case theme.ColorNameInputBackground:
+		return surfaceColor
+	case theme.ColorNamePlaceHolder:
+		return mutedText
+	case theme.ColorNamePrimary:
+		return accentColor
+	case theme.ColorNameHover:
+		return color.NRGBA{R: 238, G: 225, B: 211, A: 255}
+	case theme.ColorNamePressed:
+		return color.NRGBA{R: 218, G: 203, B: 188, A: 255}
+	case theme.ColorNameSeparator:
+		return borderColor
+	case theme.ColorNameShadow:
+		return color.NRGBA{R: 120, G: 96, B: 78, A: 90}
+	case theme.ColorNameFocus:
+		return accentColor
+	case theme.ColorNameSelection:
+		return color.NRGBA{R: 184, G: 123, B: 93, A: 80}
+	}
+	return theme.DefaultTheme().Color(name, variant)
+}
+
+func applyLightPalette() {
+	bgColor = color.NRGBA{R: 247, G: 242, B: 233, A: 255}
+	surfaceColor = color.NRGBA{R: 240, G: 232, B: 220, A: 255}
+	cardColor = color.NRGBA{R: 229, G: 217, B: 204, A: 255}
+	borderColor = color.NRGBA{R: 214, G: 201, B: 184, A: 255}
+	accentColor = color.NRGBA{R: 184, G: 123, B: 93, A: 255}
+	mutedText = color.NRGBA{R: 158, G: 125, B: 107, A: 255}
+	primaryText = color.NRGBA{R: 74, G: 74, B: 74, A: 255}
+	dangerColor = color.NRGBA{R: 180, G: 78, B: 70, A: 255}
+	successColor = color.NRGBA{R: 108, G: 145, B: 95, A: 255}
+	warningColor = color.NRGBA{R: 194, G: 143, B: 79, A: 255}
+}
+
+func applyDarkPalette() {
+	bgColor = color.NRGBA{R: 26, G: 26, B: 26, A: 255}
+	surfaceColor = color.NRGBA{R: 45, G: 45, B: 45, A: 255}
+	cardColor = color.NRGBA{R: 61, G: 61, B: 61, A: 255}
+	borderColor = color.NRGBA{R: 82, G: 82, B: 82, A: 255}
+	accentColor = color.NRGBA{R: 184, G: 123, B: 93, A: 255}
+	mutedText = color.NRGBA{R: 138, G: 138, B: 138, A: 255}
+	primaryText = color.NRGBA{R: 224, G: 224, B: 224, A: 255}
+	dangerColor = color.NRGBA{R: 230, G: 100, B: 92, A: 255}
+	successColor = color.NRGBA{R: 120, G: 190, B: 125, A: 255}
+	warningColor = color.NRGBA{R: 220, G: 165, B: 95, A: 255}
+}
+
+func applySelectedPalette() {
+	if isDarkMode {
+		applyDarkPalette()
+	} else {
+		applyLightPalette()
+	}
+	fyne.CurrentApp().Settings().SetTheme(modernTheme{})
+}
+
+func toggleTheme() {
+	isDarkMode = !isDarkMode
+	applySelectedPalette()
+	mainWindow.SetContent(createMainMenu())
+}
+
+func (modernTheme) Font(style fyne.TextStyle) fyne.Resource { return theme.DefaultTheme().Font(style) }
+func (modernTheme) Icon(name fyne.ThemeIconName) fyne.Resource { return theme.DefaultTheme().Icon(name) }
+func (modernTheme) Size(name fyne.ThemeSizeName) float32 {
+	switch name {
+	case theme.SizeNamePadding:
+		return 10
+	case theme.SizeNameInlineIcon:
+		return 20
+	case theme.SizeNameText:
+		return 15
+	case theme.SizeNameHeadingText:
+		return 24
+	}
+	return theme.DefaultTheme().Size(name)
+}
 
 func main() {
 	myApp := app.New()
-	// maybe add later ¯\_(ツ)_/¯
-	mainWindow = myApp.NewWindow("AndreiixeDev")
-	mainWindow.Resize(fyne.NewSize(1400, 900)) // More breathing room
-	
-	// Load our data
+	applySelectedPalette()
+
+	mainWindow = myApp.NewWindow("AndreiixeDev Studio")
+	mainWindow.Resize(fyne.NewSize(760, 560))
+	mainWindow.CenterOnScreen()
+
 	loadChangelogData()
 	loadProjectsData()
-	
-	// Create the main layout
-	background := canvas.NewRectangle(darkBg)
-	
-	header := createModernHeader()
-	toolbar := createModernToolbar()
-	
-	// Create tabs
-	tabs := container.NewAppTabs(
-		container.NewTabItem("📊 Dashboard", createStatsTab()),
-		container.NewTabItem("📝 Changelog", createEntriesTab()),
-		container.NewTabItem("🔮 Roadmap", createFutureTab()),
-		container.NewTabItem("💻 Projects", createProjectsTab()),
-		container.NewTabItem("⚙️ Settings", createSaveTab()),
+
+	mainWindow.SetContent(createMainMenu())
+	mainWindow.ShowAndRun()
+}
+
+func createMainMenu() fyne.CanvasObject {
+	intro := widget.NewLabelWithStyle(
+		"Choose what you want to manage",
+		fyne.TextAlignCenter,
+		fyne.TextStyle{Bold: true},
 	)
-	
-	tabs.SetTabLocation(container.TabLocationTop)
-	
-	// Stack everything together
-	content := container.NewBorder(
-		container.NewVBox(
-			header,
-			toolbar,
-			createModernSeparator(),
-		),
+
+	menu := container.NewGridWithColumns(2,
+		bigMenuButton("📊", "Dashboard", "Stats and quick overview", func() {
+			openToolWindow("Dashboard", createStatsTab(), 980, 680)
+		}),
+		bigMenuButton("📝", "Changelog", "Add and manage releases", func() {
+			openToolWindow("Changelog", createEntriesTab(), 1180, 760)
+		}),
+		bigMenuButton("🔮", "Roadmap", "Future features", func() {
+			openToolWindow("Roadmap", createFutureTab(), 900, 620)
+		}),
+		bigMenuButton("💻", "Projects", "Portfolio projects", func() {
+			openToolWindow("Projects", createProjectsTab(), 1220, 780)
+		}),
+		bigMenuButton("⚙️", "Settings", "Files and system actions", func() {
+			openToolWindow("Settings", createSaveTab(), 860, 620)
+		}),
+		bigMenuButton("💾", "Save All", "Save changelog and projects", saveAllData),
+	)
+
+	return container.NewBorder(
+		container.NewVBox(createHeader(), separator()),
 		nil,
 		nil,
 		nil,
 		container.NewMax(
-			background,
-			container.NewPadded(tabs),
+			canvas.NewRectangle(bgColor),
+			container.NewPadded(container.NewVBox(intro, menu)),
 		),
 	)
-	
-	mainWindow.SetContent(content)
-	mainWindow.ShowAndRun()
 }
 
-// Modern header with gradient effect (kinda, rectangles are hard ok?)
-func createModernHeader() fyne.CanvasObject {
-	title := canvas.NewText("AndreiixeDev Studio", textPrimary)
-	title.TextSize = 28
-	title.TextStyle = fyne.TextStyle{Bold: true}
-	
-	subtitle := canvas.NewText("Content Management System", textSecondary)
-	subtitle.TextSize = 14
-	
-	accentLine := canvas.NewRectangle(accentBlue)
-	accentLine.SetMinSize(fyne.NewSize(1400, 3))
-	
-	return container.NewVBox(
-		container.NewPadded(title),
-		container.NewPadded(subtitle),
-		accentLine,
-	)
+func bigMenuButton(icon, title, subtitle string, tapped func()) fyne.CanvasObject {
+	iconText := canvas.NewText(icon, accentColor)
+	iconText.TextSize = 38
+	iconText.Alignment = fyne.TextAlignCenter
+
+	titleText := canvas.NewText(title, primaryText)
+	titleText.TextSize = 22
+	titleText.TextStyle = fyne.TextStyle{Bold: true}
+	titleText.Alignment = fyne.TextAlignCenter
+
+	subtitleText := canvas.NewText(subtitle, mutedText)
+	subtitleText.TextSize = 14
+	subtitleText.Alignment = fyne.TextAlignCenter
+
+	btn := widget.NewButton("Open", tapped)
+	btn.Importance = widget.HighImportance
+
+	return panel("", container.NewCenter(container.NewVBox(iconText, titleText, subtitleText, softPill(btn))))
 }
 
-func createModernToolbar() fyne.CanvasObject {
-	saveBtn := widget.NewButtonWithIcon("Save Everything", theme.DocumentSaveIcon(), func() {
-		saveAllData()
+func openToolWindow(title string, content fyne.CanvasObject, width, height float32) {
+	win := fyne.CurrentApp().NewWindow("AndreiixeDev Studio • " + title)
+	win.Resize(fyne.NewSize(width, height))
+	win.CenterOnScreen()
+
+	win.SetContent(container.NewBorder(
+		container.NewVBox(
+			createWindowHeader(title),
+			container.NewPadded(container.NewHBox(
+				widget.NewButtonWithIcon("Save all", theme.DocumentSaveIcon(), saveAllData),
+				widget.NewButtonWithIcon("Reload", theme.ViewRefreshIcon(), func() {
+					loadChangelogData()
+					loadProjectsData()
+					win.SetContent(container.NewBorder(
+						container.NewVBox(createWindowHeader(title), separator()),
+						nil, nil, nil,
+						container.NewMax(canvas.NewRectangle(bgColor), container.NewPadded(content)),
+					))
+				}),
+				layout.NewSpacer(),
+				widget.NewButtonWithIcon("Close", theme.CancelIcon(), func() { win.Close() }),
+			)),
+			separator(),
+		),
+		nil,
+		nil,
+		nil,
+		container.NewMax(canvas.NewRectangle(bgColor), container.NewPadded(content)),
+	))
+
+	win.Show()
+}
+
+func createWindowHeader(title string) fyne.CanvasObject {
+	logo := canvas.NewText("AndreiixeDev.", accentColor)
+	logo.TextSize = 22
+	logo.TextStyle = fyne.TextStyle{Bold: true}
+
+	label := canvas.NewText(title, primaryText)
+	label.TextSize = 26
+	label.TextStyle = fyne.TextStyle{Bold: true}
+
+	subtitle := canvas.NewText("Workspace window", mutedText)
+	subtitle.TextSize = 13
+
+	return container.NewPadded(container.NewVBox(logo, label, subtitle))
+}
+
+func openMessageWindow(title, message string) {
+	win := fyne.CurrentApp().NewWindow(title)
+	win.Resize(fyne.NewSize(520, 240))
+	win.CenterOnScreen()
+
+	titleText := canvas.NewText(title, primaryText)
+	titleText.TextSize = 22
+	titleText.TextStyle = fyne.TextStyle{Bold: true}
+
+	messageLabel := widget.NewLabel(message)
+	messageLabel.Wrapping = fyne.TextWrapWord
+
+	okBtn := widget.NewButtonWithIcon("OK", theme.ConfirmIcon(), func() {
+		win.Close()
 	})
+	okBtn.Importance = widget.HighImportance
+
+	win.SetContent(container.NewMax(
+		canvas.NewRectangle(bgColor),
+		container.NewPadded(container.NewVBox(
+			titleText,
+			separator(),
+			messageLabel,
+			layout.NewSpacer(),
+			container.NewHBox(layout.NewSpacer(), okBtn),
+		)),
+	))
+	win.Show()
+}
+
+func openErrorWindow(err error) {
+	if err == nil {
+		return
+	}
+	openMessageWindow("Error", err.Error())
+}
+
+func openConfirmWindow(title, message, dangerActionText string, onConfirm func()) {
+	win := fyne.CurrentApp().NewWindow("Confirm • " + title)
+	win.Resize(fyne.NewSize(520, 260))
+	win.CenterOnScreen()
+
+	titleText := canvas.NewText(title, primaryText)
+	titleText.TextSize = 22
+	titleText.TextStyle = fyne.TextStyle{Bold: true}
+
+	messageLabel := widget.NewLabel(message)
+	messageLabel.Wrapping = fyne.TextWrapWord
+
+	cancelBtn := widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
+		win.Close()
+	})
+
+	deleteBtn := widget.NewButtonWithIcon(dangerActionText, theme.DeleteIcon(), func() {
+		if onConfirm != nil {
+			onConfirm()
+		}
+		win.Close()
+	})
+	deleteBtn.Importance = widget.DangerImportance
+
+	win.SetContent(container.NewMax(
+		canvas.NewRectangle(bgColor),
+		container.NewPadded(container.NewVBox(
+			titleText,
+			separator(),
+			messageLabel,
+			layout.NewSpacer(),
+			container.NewGridWithColumns(2, cancelBtn, deleteBtn),
+		)),
+	))
+	win.Show()
+}
+
+func createHeader() fyne.CanvasObject {
+	logo := canvas.NewText("AndreiixeDev.", accentColor)
+	logo.TextSize = 28
+	logo.TextStyle = fyne.TextStyle{Bold: true}
+
+	subtitle := canvas.NewText("Changelog • Projects • Links", mutedText)
+	subtitle.TextSize = 14
+
+	clockBadge := widget.NewLabelWithStyle(time.Now().Format("15:04:05"), fyne.TextAlignCenter, fyne.TextStyle{Monospace: true, Bold: true})
+	clockCard := softPill(container.NewHBox(widget.NewIcon(theme.HistoryIcon()), clockBadge))
+
+	themeSymbol := "☾"
+	if isDarkMode {
+		themeSymbol = "☀"
+	}
+
+	themeText := canvas.NewText(themeSymbol, accentColor)
+	themeText.TextSize = 24
+	themeText.Alignment = fyne.TextAlignCenter
+
+	themeCircle := canvas.NewCircle(cardColor)
+	themeCircle.StrokeColor = borderColor
+	themeCircle.StrokeWidth = 1
+	themeVisual := container.NewGridWrap(
+		fyne.NewSize(54, 54),
+		container.NewStack(
+			themeCircle,
+			container.NewCenter(themeText),
+		),
+	)
+
+	themeTap := widget.NewButton("", toggleTheme)
+	themeTap.Importance = widget.LowImportance
+
+	themeButton := container.NewStack(themeVisual, themeTap)
+
+	right := container.NewHBox(themeButton, clockCard)
+
+	return container.NewPadded(container.NewBorder(nil, nil, container.NewVBox(logo, subtitle), right))
+}
+
+func createToolbar() fyne.CanvasObject {
+	saveBtn := widget.NewButtonWithIcon("Save all", theme.DocumentSaveIcon(), saveAllData)
 	saveBtn.Importance = widget.HighImportance
-	
-	reloadBtn := widget.NewButtonWithIcon("Refresh", theme.ViewRefreshIcon(), func() {
+
+	reloadBtn := widget.NewButtonWithIcon("Reload", theme.ViewRefreshIcon(), func() {
 		loadChangelogData()
 		loadProjectsData()
-		dialog.ShowInformation("✨ Refreshed", "All data has been reloaded from disk!", mainWindow)
+		mainWindow.SetContent(createMainMenu())
+		openMessageWindow("Message", "Action completed or needs attention.")
 	})
-	
-	aboutBtn := widget.NewButtonWithIcon("About", theme.InfoIcon(), func() {
-		showAbout()
-	})
-	
-	return container.NewHBox(
-		layout.NewSpacer(),
-		saveBtn,
-		reloadBtn,
-		aboutBtn,
-		layout.NewSpacer(),
-	)
+
+	aboutBtn := widget.NewButtonWithIcon("About", theme.InfoIcon(), showAbout)
+
+	return container.NewPadded(container.NewHBox(layout.NewSpacer(), saveBtn, reloadBtn, aboutBtn))
 }
 
-func createModernSeparator() fyne.CanvasObject {
-	sep := canvas.NewRectangle(darkBorder)
-	sep.SetMinSize(fyne.NewSize(1400, 1))
-	return sep
+func separator() fyne.CanvasObject {
+	line := canvas.NewRectangle(borderColor)
+	line.SetMinSize(fyne.NewSize(1, 1))
+	return line
 }
 
-func createModernCard(title string, content fyne.CanvasObject) fyne.CanvasObject {
-	card := widget.NewCard("", title, content)
-	// Make the card look less boring
-	return card
+func panel(title string, content fyne.CanvasObject) fyne.CanvasObject {
+	if content == nil {
+		content = widget.NewLabel("")
+	}
+
+	outer := canvas.NewRectangle(borderColor)
+	outer.CornerRadius = 30
+
+	inner := canvas.NewRectangle(surfaceColor)
+	inner.CornerRadius = 28
+
+	var body fyne.CanvasObject
+	if strings.TrimSpace(title) == "" {
+		body = content
+	} else {
+		header := canvas.NewText(title, accentColor)
+		header.TextSize = 22
+		header.TextStyle = fyne.TextStyle{Bold: true}
+		body = container.NewVBox(header, dashedSeparator(), content)
+	}
+
+	return container.NewPadded(container.NewMax(
+		outer,
+		container.NewPadded(container.NewMax(inner, container.NewPadded(body))),
+	))
+}
+
+func softPill(content fyne.CanvasObject) fyne.CanvasObject {
+	bg := canvas.NewRectangle(cardColor)
+	bg.CornerRadius = 40
+	return container.NewPadded(container.NewMax(bg, container.NewPadded(content)))
+}
+
+func dashedSeparator() fyne.CanvasObject {
+	line := canvas.NewRectangle(mutedText)
+	line.SetMinSize(fyne.NewSize(1, 2))
+	return line
 }
 
 func showAbout() {
-	aboutText := `> AndreiixeDev Manager
-
-Version 2.0.0 • "Fixes and cleanup"
-
-What's this thing do?
-• Manage your changelog without touching JSON directly
-• Keep your projects organized (unlike my desktop, LOL)
-
-© 2026 AndreiixeDev`
-
-	dialog.ShowInformation("> About", aboutText, mainWindow)
+	dialog.ShowInformation("About", "AndreiixeDev Studio\n\n© 2026 AndreiixeDev", mainWindow)
 }
 
-// Load data with better error handling (because files can be sneaky)
+func defaultChangelog() Changelog {
+	return Changelog{Stats: Stats{}, Entries: []Entry{}, FutureFeatures: []FutureFeature{}}
+}
+
+func defaultProjectsData() ProjectsData {
+	return ProjectsData{
+		Projects:   []Project{},
+		Categories: []string{"web", "mobile", "desktop", "game", "tool"},
+		Settings: ProjectsSettings{
+			ShowFeaturedOnly: false,
+			ItemsPerPage:     6,
+		},
+	}
+}
+
 func loadChangelogData() {
 	data, err := os.ReadFile(changelogFile)
 	if err != nil {
-		// No file? No problem :]]
-		currentData = Changelog{
-			Stats: Stats{
-				TotalUpdates:  0,
-				FeaturesAdded: 0,
-				BugsFixed:     0,
-				Improvements:  0,
-			},
-			Entries:        []Entry{},
-			FutureFeatures: []FutureFeature{},
-		}
+		currentData = defaultChangelog()
 		saveChangelogData()
 		return
 	}
-	
-	err = json.Unmarshal(data, &currentData)
-	if err != nil {
-		// JSON is broken? That's a you problem ;)
-		dialog.ShowError(fmt.Errorf("Your changelog.json is corrupted."), mainWindow)
-		currentData = Changelog{
-			Stats:          Stats{},
-			Entries:        []Entry{},
-			FutureFeatures: []FutureFeature{},
-		}
+	if err := json.Unmarshal(data, &currentData); err != nil {
+		currentData = defaultChangelog()
+		dialog.ShowError(fmt.Errorf("changelog.json is corrupted: %w", err), mainWindow)
+		return
 	}
+	if currentData.Entries == nil {
+		currentData.Entries = []Entry{}
+	}
+	if currentData.FutureFeatures == nil {
+		currentData.FutureFeatures = []FutureFeature{}
+	}
+	recalculateStats()
 }
 
 func loadProjectsData() {
 	data, err := os.ReadFile(projectsFile)
 	if err != nil {
-		projectsData = ProjectsData{
-			Projects:   []Project{},
-			Categories: []string{},
-			Settings: struct {
-				ShowFeaturedOnly bool `json:"showFeaturedOnly"`
-				ItemsPerPage     int  `json:"itemsPerPage"`
-			}{
-				ShowFeaturedOnly: false,
-				ItemsPerPage:     6,
-			},
-		}
+		projectsData = defaultProjectsData()
 		saveProjectsData()
 		return
 	}
-	
-	err = json.Unmarshal(data, &projectsData)
-	if err != nil {
-		dialog.ShowError(fmt.Errorf("projects.json is corrupted."), mainWindow)
-		projectsData = ProjectsData{
-			Projects:   []Project{},
-			Categories: []string{},
-			Settings: struct {
-				ShowFeaturedOnly bool `json:"showFeaturedOnly"`
-				ItemsPerPage     int  `json:"itemsPerPage"`
-			}{
-				ShowFeaturedOnly: false,
-				ItemsPerPage:     6,
-			},
-		}
+	if err := json.Unmarshal(data, &projectsData); err != nil {
+		projectsData = defaultProjectsData()
+		dialog.ShowError(fmt.Errorf("projects.json is corrupted: %w", err), mainWindow)
+		return
+	}
+	if projectsData.Projects == nil {
+		projectsData.Projects = []Project{}
+	}
+	if projectsData.Categories == nil || len(projectsData.Categories) == 0 {
+		projectsData.Categories = defaultProjectsData().Categories
+	}
+	if projectsData.Settings.ItemsPerPage <= 0 {
+		projectsData.Settings.ItemsPerPage = 6
 	}
 }
 
 func saveChangelogData() {
 	recalculateStats()
-	
 	data, err := json.MarshalIndent(currentData, "", "  ")
 	if err != nil {
-		dialog.ShowError(err, mainWindow)
+		openMessageWindow("Error", "An error occurred.")
 		return
 	}
-	
-	err = os.WriteFile(changelogFile, data, 0644)
-	if err != nil {
-		dialog.ShowError(err, mainWindow)
+	if err := os.WriteFile(changelogFile, data, 0644); err != nil {
+		openMessageWindow("Error", "An error occurred.")
 	}
 }
 
 func saveProjectsData() {
 	data, err := json.MarshalIndent(projectsData, "", "  ")
 	if err != nil {
-		dialog.ShowError(err, mainWindow)
+		openMessageWindow("Error", "An error occurred.")
 		return
 	}
-	
-	err = os.WriteFile(projectsFile, data, 0644)
-	if err != nil {
-		dialog.ShowError(err, mainWindow)
+	if err := os.WriteFile(projectsFile, data, 0644); err != nil {
+		openMessageWindow("Error", "An error occurred.")
 	}
 }
 
 func saveAllData() {
 	saveChangelogData()
 	saveProjectsData()
-	dialog.ShowInformation("💾 Saved!", "All your data is safely stored.", mainWindow)
+	openMessageWindow("Message", "Action completed or needs attention.")
 }
 
-// Recalculate stats
 func recalculateStats() {
-	totalUpdates := len(currentData.Entries)
-	featuresAdded := 0
-	bugsFixed := 0
-	improvements := 0
-	
+	stats := Stats{TotalUpdates: len(currentData.Entries)}
 	for _, entry := range currentData.Entries {
 		for _, change := range entry.Changes {
-			switch change.Type {
+			switch strings.ToLower(strings.TrimSpace(change.Type)) {
 			case "added":
-				featuresAdded++
+				stats.FeaturesAdded++
 			case "fixed":
-				bugsFixed++
+				stats.BugsFixed++
 			case "improved":
-				improvements++
+				stats.Improvements++
 			}
 		}
 	}
-	
-	currentData.Stats = Stats{
-		TotalUpdates:  totalUpdates,
-		FeaturesAdded: featuresAdded,
-		BugsFixed:     bugsFixed,
-		Improvements:  improvements,
+	currentData.Stats = stats
+}
+
+func splitOption(value string) string {
+	parts := strings.Fields(value)
+	if len(parts) == 0 {
+		return ""
+	}
+	return parts[0]
+}
+
+func parseTechnologies(input string) []string {
+	items := strings.Split(input, ",")
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		item = strings.TrimSpace(item)
+		if item != "" {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+func nextProjectID() int {
+	maxID := 0
+	for _, p := range projectsData.Projects {
+		if p.ID > maxID {
+			maxID = p.ID
+		}
+	}
+	return maxID + 1
+}
+
+func clearProjectForm(fields ...*widget.Entry) {
+	for _, field := range fields {
+		field.SetText("")
 	}
 }
 
-// Dashboard tab
 func createStatsTab() fyne.CanvasObject {
-	// Create fancy shitt stat cards
-	totalCard := widget.NewCard("📦 Total Updates", "",
-		container.NewCenter(
-			widget.NewLabelWithStyle(fmt.Sprintf("%d", currentData.Stats.TotalUpdates), 
-				fyne.TextAlignCenter, fyne.TextStyle{Bold: true, Monospace: true}),
-		),
+	cards := container.NewGridWithColumns(4,
+		statCard("Total updates", currentData.Stats.TotalUpdates, accentColor),
+		statCard("Features", currentData.Stats.FeaturesAdded, successColor),
+		statCard("Bugs fixed", currentData.Stats.BugsFixed, dangerColor),
+		statCard("Improvements", currentData.Stats.Improvements, warningColor),
 	)
-	
-	featuresCard := widget.NewCard("✨ Features Added", "",
-		container.NewCenter(
-			widget.NewLabelWithStyle(fmt.Sprintf("%d", currentData.Stats.FeaturesAdded), 
-				fyne.TextAlignCenter, fyne.TextStyle{Bold: true, Monospace: true}),
-		),
+
+	recent := container.NewVBox()
+	limit := 5
+	if len(currentData.Entries) < limit {
+		limit = len(currentData.Entries)
+	}
+	for i := 0; i < limit; i++ {
+		e := currentData.Entries[i]
+		recent.Add(widget.NewLabel(fmt.Sprintf("%s  %s — %s", e.Icon, e.Version, e.Title)))
+	}
+	if limit == 0 {
+		recent.Add(widget.NewLabel("No releases yet."))
+	}
+
+	quickActions := container.NewGridWithColumns(3,
+		widget.NewButtonWithIcon("Add changelog", theme.ContentAddIcon(), func() {
+			openMessageWindow("Message", "Action completed or needs attention.")
+		}),
+		widget.NewButtonWithIcon("Add project", theme.ContentAddIcon(), func() {
+			openMessageWindow("Message", "Action completed or needs attention.")
+		}),
+		widget.NewButtonWithIcon("Refresh stats", theme.ViewRefreshIcon(), func() {
+			recalculateStats()
+			mainWindow.SetContent(createMainMenu())
+		}),
 	)
-	
-	bugsCard := widget.NewCard("🐛 Bugs Fixed", "",
-		container.NewCenter(
-			widget.NewLabelWithStyle(fmt.Sprintf("%d", currentData.Stats.BugsFixed), 
-				fyne.TextAlignCenter, fyne.TextStyle{Bold: true, Monospace: true}),
-		),
-	)
-	
-	improvementsCard := widget.NewCard("📈 Improvements", "",
-		container.NewCenter(
-			widget.NewLabelWithStyle(fmt.Sprintf("%d", currentData.Stats.Improvements), 
-				fyne.TextAlignCenter, fyne.TextStyle{Bold: true, Monospace: true}),
-		),
-	)
-	
-	// Grid layout for stats
-	statsGrid := container.NewGridWithColumns(2, totalCard, featuresCard, bugsCard, improvementsCard)
-	
-	// Quick actions - for the lazy (like me)
-	quickActions := createModernCard("⚡ Quick Actions",
-		container.NewVBox(
-			widget.NewButton("📝 Add New Version", func() {
-				// Switch to changelog tab and scroll? Maybe future feature
-				dialog.ShowInformation("Coming Soon", "This will auto-switch to Changelog tab in the next update.", mainWindow)
-			}),
-			widget.NewButton("💻 Add New Project", func() {
-				dialog.ShowInformation("Coming Soon", "Auto-switch to Projects tab coming.", mainWindow)
-			}),
-			widget.NewButton("🔄 Refresh Stats", func() {
-				recalculateStats()
-				// Force refresh the tab by recreating?
-				dialog.ShowInformation("Stats Updated", "Statistics recalculated! Click the tab again to see changes.", mainWindow)
-				//Nah, just tell them to restart
-			}),
-		),
-	)
-	
-	return container.NewVScroll(
-		container.NewPadded(
-			container.NewVBox(
-				statsGrid,
-				createModernSeparator(),
-				quickActions,
-			),
-		),
-	)
+
+	return container.NewVScroll(container.NewPadded(container.NewVBox(
+		cards,
+		panel("Recent releases", recent),
+		panel("Quick actions", quickActions),
+	)))
 }
 
-// Changelog tab
+func statCard(title string, value int, c color.Color) fyne.CanvasObject {
+	valueText := canvas.NewText(fmt.Sprintf("%d", value), c)
+	valueText.TextSize = 34
+	valueText.TextStyle = fyne.TextStyle{Bold: true}
+	label := canvas.NewText(title, mutedText)
+	label.TextSize = 14
+	return panel("", container.NewCenter(container.NewVBox(valueText, label)))
+}
+
 func createEntriesTab() fyne.CanvasObject {
-	// Entry list with better display
 	entryList := widget.NewList(
-		func() int {
-			return len(currentData.Entries)
-		},
+		func() int { return len(currentData.Entries) },
 		func() fyne.CanvasObject {
-			// Modern list item with icon and metadata
-			icon := widget.NewIcon(theme.DocumentIcon())
-			titleLabel := widget.NewLabel("")
-			versionLabel := widget.NewLabel("")
-			dateLabel := widget.NewLabel("")
-			
-			return container.NewBorder(
-				nil, nil,
-				icon,
-				dateLabel,
-				container.NewHBox(
-					versionLabel,
-					widget.NewLabel("•"),
-					titleLabel,
-				),
-			)
+			icon := widget.NewLabelWithStyle("", fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+			version := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+			title := widget.NewLabel("")
+			date := widget.NewLabel("")
+			return container.NewBorder(nil, nil, icon, date, container.NewVBox(version, title))
 		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			if i >= len(currentData.Entries) {
+		func(i widget.ListItemID, obj fyne.CanvasObject) {
+			if i < 0 || i >= len(currentData.Entries) {
 				return
 			}
-			
-			entry := currentData.Entries[i]
-			border := o.(*fyne.Container)
-			
-			// The structure is: border (left icon, right date, center hbox)
-			if len(border.Objects) >= 2 {
-				if hbox, ok := border.Objects[0].(*fyne.Container); ok {
-					if len(hbox.Objects) >= 3 {
-						if versionLabel, ok := hbox.Objects[0].(*widget.Label); ok {
-							versionLabel.SetText(entry.Version)
-						}
-						if titleLabel, ok := hbox.Objects[2].(*widget.Label); ok {
-							titleLabel.SetText(entry.Title)
-						}
-					}
-				}
-				if dateLabel, ok := border.Objects[1].(*widget.Label); ok {
-					dateLabel.SetText(entry.Date)
-				}
+			e := currentData.Entries[i]
+			box := obj.(*fyne.Container)
+			icon := box.Objects[1].(*widget.Label)
+			date := box.Objects[2].(*widget.Label)
+			center := box.Objects[0].(*fyne.Container)
+			version := center.Objects[0].(*widget.Label)
+			title := center.Objects[1].(*widget.Label)
+
+			if e.Icon == "" {
+				e.Icon = "📝"
 			}
+			icon.SetText(e.Icon)
+			version.SetText(e.Version)
+			title.SetText(e.Title)
+			date.SetText(e.Date)
 		},
 	)
-	
-	// Form inputs
+	entryList.SetItemHeight(0, 70)
+
 	versionEntry := widget.NewEntry()
 	versionEntry.SetPlaceHolder("v2.0.0")
-	
 	dateEntry := widget.NewEntry()
-	dateEntry.SetPlaceHolder("YYYY-MM-DD")
 	dateEntry.SetText(time.Now().Format("2006-01-02"))
-	
 	titleEntry := widget.NewEntry()
-	titleEntry.SetPlaceHolder("What's new?")
-	
-	iconSelect := widget.NewSelect([]string{
-		"⭐ star", "🚀 rocket", "🎨 paint", "🔗 link",
-		"👤 user", "📊 chart", "🎮 game", "📱 mobile",
-	}, func(s string) {})
-	
-	// Changes section - where the details go
+	titleEntry.SetPlaceHolder("Release title")
+	iconSelect := widget.NewSelect([]string{"⭐ star", "🚀 rocket", "🎨 paint", "🔗 link", "📊 chart", "🎮 game", "📱 mobile", "🛠️ tool"}, nil)
+	iconSelect.SetSelected("🚀 rocket")
+
 	changeType := widget.NewSelect([]string{"added", "fixed", "improved", "changed", "removed"}, nil)
+	changeType.SetSelected("added")
 	changeIcon := widget.NewEntry()
-	changeIcon.SetPlaceHolder("Icon name (e.g., 'bug', 'rocket')")
+	changeIcon.SetPlaceHolder("🐛 / 🚀 / 🛠️")
 	changeDesc := widget.NewEntry()
-	changeDesc.SetPlaceHolder("Describe what changed (and why it matters)")
-	
-	changesList := []Change{}
-	changesLabel := widget.NewLabel("📝 0 changes")
-	
-	addChangeBtn := widget.NewButton("➕ Add Change", func() {
-		if changeDesc.Text == "" {
-			dialog.ShowInformation("Missing Info", "You need to describe the change", mainWindow)
+	changeDesc.SetPlaceHolder("Describe the change")
+
+	changes := []Change{}
+	changesBox := container.NewVBox(widget.NewLabel("No changes added yet."))
+	changesCount := widget.NewLabel("0 changes")
+	refreshChanges := func() {
+		changesBox.Objects = nil
+		if len(changes) == 0 {
+			changesBox.Add(widget.NewLabel("No changes added yet."))
+		} else {
+			for i, change := range changes {
+				changesBox.Add(widget.NewLabel(fmt.Sprintf("%d. %s [%s] %s", i+1, change.Icon, change.Type, change.Description)))
+			}
+		}
+		changesCount.SetText(fmt.Sprintf("%d changes", len(changes)))
+		changesBox.Refresh()
+	}
+
+	addChangeBtn := widget.NewButtonWithIcon("Add change", theme.ContentAddIcon(), func() {
+		if strings.TrimSpace(changeDesc.Text) == "" {
+			openMessageWindow("Message", "Action completed or needs attention.")
 			return
 		}
-		
-		newChange := Change{
-			Type:        changeType.Selected,
-			Icon:        changeIcon.Text,
-			Description: changeDesc.Text,
+		icon := strings.TrimSpace(changeIcon.Text)
+		if icon == "" {
+			icon = "•"
 		}
-		changesList = append(changesList, newChange)
-		changesLabel.SetText(fmt.Sprintf("✅ %d changes added", len(changesList)))
-		
-		// Clear inputs for next change
+		changes = append(changes, Change{Type: changeType.Selected, Icon: icon, Description: strings.TrimSpace(changeDesc.Text)})
 		changeDesc.SetText("")
 		changeIcon.SetText("")
+		refreshChanges()
 	})
-	
-	addEntryBtn := widget.NewButtonWithIcon("✨ Save Entry", theme.ConfirmIcon(), func() {
-		if versionEntry.Text == "" || titleEntry.Text == "" {
-			dialog.ShowInformation("Oops!", "Version and Title are required fields. Can't have a changelog entry without them!", mainWindow)
+
+	addEntryBtn := widget.NewButtonWithIcon("Save release", theme.ConfirmIcon(), func() {
+		if strings.TrimSpace(versionEntry.Text) == "" || strings.TrimSpace(titleEntry.Text) == "" {
+			openMessageWindow("Message", "Action completed or needs attention.")
 			return
 		}
-		
-		newEntry := Entry{
-			Version: versionEntry.Text,
-			Date:    dateEntry.Text,
-			Title:   titleEntry.Text,
-			Icon:    strings.TrimPrefix(iconSelect.Selected, "⭐ "),
-			Changes: changesList,
+		entry := Entry{
+			Version: strings.TrimSpace(versionEntry.Text),
+			Date:    strings.TrimSpace(dateEntry.Text),
+			Title:   strings.TrimSpace(titleEntry.Text),
+			Icon:    splitOption(iconSelect.Selected),
+			Changes: changes,
 		}
-		
-		// Add to top of list (newest first)
-		currentData.Entries = append([]Entry{newEntry}, currentData.Entries...)
-		entryList.Refresh()
+		currentData.Entries = append([]Entry{entry}, currentData.Entries...)
 		saveChangelogData()
-		
-		// Reset form
+		entryList.Refresh()
 		versionEntry.SetText("")
 		titleEntry.SetText("")
-		changesList = []Change{}
-		changesLabel.SetText("📝 0 changes")
-		
-		dialog.ShowInformation("Success! 🎉", "Your changelog entry has been saved.", mainWindow)
+		changes = []Change{}
+		refreshChanges()
+		openMessageWindow("Message", "Action completed or needs attention.")
 	})
-	
-	deleteBtn := widget.NewButtonWithIcon("🗑️ Delete Last", theme.DeleteIcon(), func() {
+	addEntryBtn.Importance = widget.HighImportance
+
+	deleteBtn := widget.NewButtonWithIcon("Delete newest", theme.DeleteIcon(), func() {
 		if len(currentData.Entries) == 0 {
-			dialog.ShowInformation("Nothing to delete", "The changelog is empty.", mainWindow)
 			return
 		}
-		
-		dialog.ShowConfirm("Confirm Delete", "Are you sure you want to delete the most recent entry? This cannot be undone!", func(confirm bool) {
-			if confirm {
-				currentData.Entries = currentData.Entries[1:]
-				entryList.Refresh()
-				saveChangelogData()
-				dialog.ShowInformation("Deleted", "Entry removed.", mainWindow)
+		dialog.ShowConfirm("Delete newest release", "This cannot be undone.", func(ok bool) {
+			if !ok {
+				return
 			}
+			currentData.Entries = currentData.Entries[1:]
+			saveChangelogData()
+			entryList.Refresh()
 		}, mainWindow)
 	})
-	
-	// Build the form
-	form := container.NewVScroll(
-		container.NewPadded(
-			container.NewVBox(
-				createModernCard("📝 New Release Entry",
-					container.NewVBox(
-						container.NewGridWithColumns(2,
-							container.NewVBox(
-								widget.NewLabel("Version:"),
-								versionEntry,
-							),
-							container.NewVBox(
-								widget.NewLabel("Release Date:"),
-								dateEntry,
-							),
-						),
-						widget.NewLabel("Title:"),
-						titleEntry,
-						widget.NewLabel("Icon:"),
-						iconSelect,
-					),
-				),
-				createModernCard("🔧 Changes & Improvements",
-					container.NewVBox(
-						container.NewGridWithColumns(3,
-							container.NewVBox(
-								widget.NewLabel("Type:"),
-								changeType,
-							),
-							container.NewVBox(
-								widget.NewLabel("Icon:"),
-								changeIcon,
-							),
-							container.NewVBox(
-								widget.NewLabel("Description:"),
-								changeDesc,
-							),
-						),
-						addChangeBtn,
-						changesLabel,
-					),
-				),
-				createModernCard("⚡ Actions",
-					container.NewHBox(
-						addEntryBtn,
-						deleteBtn,
-					),
-				),
-			),
-		),
-	)
-	
-	// Split view: list on left, form on right
-	split := container.NewHSplit(
-		container.NewBorder(
-			createModernCard("📋 Version History", nil),
-			nil, nil, nil,
-			container.NewPadded(entryList),
-		),
-		form,
-	)
-	split.Offset = 0.4
-	
+
+	form := container.NewVScroll(container.NewPadded(container.NewVBox(
+		panel("New release", container.NewVBox(
+			container.NewGridWithColumns(2, versionEntry, dateEntry),
+			titleEntry,
+			iconSelect,
+		)),
+		panel("Changes", container.NewVBox(
+			container.NewGridWithColumns(3, changeType, changeIcon, changeDesc),
+			container.NewHBox(addChangeBtn, changesCount),
+			changesBox,
+		)),
+		panel("Actions", container.NewHBox(addEntryBtn, deleteBtn)),
+	)))
+
+	split := container.NewHSplit(panel("Version history", entryList), form)
+	split.Offset = 0.38
 	return split
 }
 
-// Future features tab
 func createFutureTab() fyne.CanvasObject {
 	featureList := widget.NewList(
-		func() int {
-			return len(currentData.FutureFeatures)
-		},
-		func() fyne.CanvasObject {
-			return container.NewHBox(
-				widget.NewIcon(theme.ConfirmIcon()),
-				widget.NewLabel(""),
-				layout.NewSpacer(),
-				widget.NewLabel(""),
-			)
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			if i >= len(currentData.FutureFeatures) {
+		func() int { return len(currentData.FutureFeatures) },
+		func() fyne.CanvasObject { return widget.NewLabel("") },
+		func(i widget.ListItemID, obj fyne.CanvasObject) {
+			if i < 0 || i >= len(currentData.FutureFeatures) {
 				return
 			}
-			
-			feature := currentData.FutureFeatures[i]
-			icon := feature.Icon
-			if icon == "" {
-				icon = "🔮"
+			f := currentData.FutureFeatures[i]
+			if f.Icon == "" {
+				f.Icon = "🔮"
 			}
-			
-			box := o.(*fyne.Container)
-			if len(box.Objects) > 1 {
-				box.Objects[1].(*widget.Label).SetText(
-					fmt.Sprintf("%s %s", icon, feature.Name),
-				)
-			}
+			obj.(*widget.Label).SetText(fmt.Sprintf("%s  %s", f.Icon, f.Name))
 		},
 	)
-	
-	iconSelect := widget.NewSelect([]string{
-		"💬 chat", "📈 analytics", "🔍 search", "🔄 sync",
-		"❤️ love", "⭐ star", "🔔 notify", "✉️ email",
-		"🎮 game", "📱 mobile", "💻 desktop", "🌐 web",
-	}, nil)
-	
+
+	iconSelect := widget.NewSelect([]string{"💬 chat", "📈 analytics", "🔍 search", "🔄 sync", "⭐ star", "🔔 notify", "✉️ email", "🎮 game", "📱 mobile", "🌐 web"}, nil)
+	iconSelect.SetSelected("🔮 roadmap")
 	nameEntry := widget.NewEntry()
-	nameEntry.SetPlaceHolder("What awesome feature is coming?")
-	
-	addBtn := widget.NewButtonWithIcon("➕ Add to Roadmap", theme.ContentAddIcon(), func() {
-		if nameEntry.Text == "" {
-			dialog.ShowInformation("Need a name", "Even future features need names.", mainWindow)
+	nameEntry.SetPlaceHolder("Future feature name")
+
+	addBtn := widget.NewButtonWithIcon("Add feature", theme.ContentAddIcon(), func() {
+		name := strings.TrimSpace(nameEntry.Text)
+		if name == "" {
+			openMessageWindow("Message", "Action completed or needs attention.")
 			return
 		}
-		
-		newFeature := FutureFeature{
-			Icon: strings.TrimPrefix(iconSelect.Selected, "💬 "),
-			Name: nameEntry.Text,
-		}
-		
-		currentData.FutureFeatures = append(currentData.FutureFeatures, newFeature)
-		featureList.Refresh()
-		saveChangelogData()
-		
+		currentData.FutureFeatures = append(currentData.FutureFeatures, FutureFeature{Icon: splitOption(iconSelect.Selected), Name: name})
 		nameEntry.SetText("")
-		dialog.ShowInformation("Added to Roadmap! 🚀", "Future feature saved.", mainWindow)
+		saveChangelogData()
+		featureList.Refresh()
 	})
-	
-	deleteBtn := widget.NewButtonWithIcon("🗑️ Remove Last", theme.DeleteIcon(), func() {
+	addBtn.Importance = widget.HighImportance
+
+	deleteBtn := widget.NewButtonWithIcon("Remove last", theme.DeleteIcon(), func() {
 		if len(currentData.FutureFeatures) == 0 {
-			dialog.ShowInformation("Empty Roadmap", "No features to remove.", mainWindow)
 			return
 		}
-		
-		dialog.ShowConfirm("Remove Feature", "Are you sure? This feature might never get built now...", func(confirm bool) {
-			if confirm {
-				currentData.FutureFeatures = currentData.FutureFeatures[:len(currentData.FutureFeatures)-1]
-				featureList.Refresh()
-				saveChangelogData()
-			}
-		}, mainWindow)
+		currentData.FutureFeatures = currentData.FutureFeatures[:len(currentData.FutureFeatures)-1]
+		saveChangelogData()
+		featureList.Refresh()
 	})
-	
-	form := container.NewPadded(
-		createModernCard("🔮 Add Future Feature",
-			container.NewVBox(
-				iconSelect,
-				nameEntry,
-				container.NewHBox(addBtn, deleteBtn),
-			),
-		),
-	)
-	
-	split := container.NewHSplit(
-		container.NewBorder(
-			createModernCard("🔮 Planned Features", nil),
-			nil, nil, nil,
-			container.NewPadded(featureList),
-		),
-		form,
-	)
-	split.Offset = 0.4
-	
+
+	form := panel("Add roadmap item", container.NewVBox(iconSelect, nameEntry, container.NewHBox(addBtn, deleteBtn)))
+	split := container.NewHSplit(panel("Planned features", featureList), container.NewPadded(form))
+	split.Offset = 0.45
 	return split
 }
 
-// Helper to populate project form (because DRY is nice)
-func populateProjectForm(
-	titleEntry, descEntry, imageEntry, yearEntry, techEntry, githubEntry, liveEntry, releaseEntry *widget.Entry,
-	categorySelect *widget.Select,
-	featuredCheck *widget.Check,
-	project Project,
-) {
-	titleEntry.SetText(project.Title)
-	descEntry.SetText(project.Description)
-	imageEntry.SetText(project.Image)
-	yearEntry.SetText(project.Year)
-	techEntry.SetText(strings.Join(project.Technologies, ", "))
-	githubEntry.SetText(project.Links.Github)
-	liveEntry.SetText(project.Links.Live)
-	releaseEntry.SetText(project.Links.Release)
-	categorySelect.SetSelected(project.Category)
-	featuredCheck.SetChecked(project.Featured)
-}
-
-// Projects tab
 func createProjectsTab() fyne.CanvasObject {
-	// Project list with better visual feedback
+	selectedProjectIndex = -1
+
+	var refreshProjectList func()
+
 	projectList := widget.NewList(
-		func() int {
-			return len(projectsData.Projects)
-		},
+		func() int { return len(projectsData.Projects) },
 		func() fyne.CanvasObject {
-			itemBg := canvas.NewRectangle(darkSurface)
-			itemBg.CornerRadius = 8 // Rounded corners because we're fancy
-			
-			iconWidget := widget.NewIcon(theme.ComputerIcon())
-			titleLabel := widget.NewLabel("")
-			categoryLabel := widget.NewLabel("")
-			
-			// Modern layout
-			contentBox := container.NewHBox(
-				iconWidget,
-				container.NewVBox(
-					titleLabel,
-					categoryLabel,
-				),
-				layout.NewSpacer(),
-			)
-			
-			return container.NewMax(
-				itemBg,
-				container.NewPadded(contentBox),
-			)
+			icon := widget.NewIcon(theme.ComputerIcon())
+
+			title := widget.NewLabelWithStyle("", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+			title.Wrapping = fyne.TextWrapWord
+
+			category := widget.NewLabel("")
+			category.Wrapping = fyne.TextWrapWord
+
+			meta := widget.NewLabel("")
+			meta.Wrapping = fyne.TextWrapWord
+
+			content := container.NewVBox(title, category, meta)
+			return container.NewPadded(container.NewBorder(nil, nil, icon, nil, content))
 		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			if i >= len(projectsData.Projects) {
+		func(i widget.ListItemID, obj fyne.CanvasObject) {
+			if i < 0 || i >= len(projectsData.Projects) {
 				return
 			}
-			
-			project := projectsData.Projects[i]
-			featuredStar := ""
-			if project.Featured {
-				featuredStar = " ⭐"
+
+			p := projectsData.Projects[i]
+			padded := obj.(*fyne.Container)
+			box := padded.Objects[0].(*fyne.Container)
+			content := box.Objects[0].(*fyne.Container)
+
+			title := content.Objects[0].(*widget.Label)
+			category := content.Objects[1].(*widget.Label)
+			meta := content.Objects[2].(*widget.Label)
+
+			star := ""
+			if p.Featured {
+				star = " ⭐"
 			}
-			
-			mainContainer := o.(*fyne.Container)
-			if len(mainContainer.Objects) > 0 {
-				if bgRect, ok := mainContainer.Objects[0].(*canvas.Rectangle); ok {
-					if i == selectedProjectIndex {
-						bgRect.FillColor = accentBlue
-					} else {
-						bgRect.FillColor = darkSurface
-					}
-					bgRect.Refresh()
-				}
-			}
-			
-			if len(mainContainer.Objects) > 1 {
-				if paddedContainer, ok := mainContainer.Objects[1].(*fyne.Container); ok {
-					if len(paddedContainer.Objects) > 0 {
-						if contentBox, ok := paddedContainer.Objects[0].(*fyne.Container); ok {
-							if len(contentBox.Objects) > 1 {
-								if vbox, ok := contentBox.Objects[1].(*fyne.Container); ok {
-									if len(vbox.Objects) > 0 {
-										if titleLabel, ok := vbox.Objects[0].(*widget.Label); ok {
-											titleLabel.SetText(fmt.Sprintf("%s%s", project.Title, featuredStar))
-										}
-										if len(vbox.Objects) > 1 {
-											if categoryLabel, ok := vbox.Objects[1].(*widget.Label); ok {
-												categoryLabel.SetText(project.Category)
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+
+			title.SetText(p.Title + star)
+			category.SetText("Category: " + p.Category)
+			meta.SetText(fmt.Sprintf("Year: %s  •  ID: #%d", p.Year, p.ID))
 		},
 	)
-	
+
+	refreshProjectList = func() {
+		for i := range projectsData.Projects {
+			projectList.SetItemHeight(i, 104)
+		}
+		projectList.Refresh()
+	}
+
 	projectList.OnSelected = func(id widget.ListItemID) {
 		if id >= 0 && id < len(projectsData.Projects) {
 			selectedProjectIndex = id
-			selectedProject = projectsData.Projects[id]
-			projectList.Refresh()
 		}
 	}
-	
-	// Form inputs
+	refreshProjectList()
+
 	titleEntry := widget.NewEntry()
-	titleEntry.SetPlaceHolder("Project name")
-	
-	descEntry := widget.NewEntry()
-	descEntry.SetPlaceHolder("What does this project do?")
-	descEntry.MultiLine = true
-	
+	titleEntry.SetPlaceHolder("Project title")
+
+	descEntry := widget.NewMultiLineEntry()
+	descEntry.SetPlaceHolder("Project description")
+	descEntry.SetMinRowsVisible(4)
+
 	imageEntry := widget.NewEntry()
 	imageEntry.SetPlaceHolder("images/project.jpg")
-	
+
 	yearEntry := widget.NewEntry()
-	yearEntry.SetPlaceHolder("2024 • When did you build this?")
-	
+	yearEntry.SetPlaceHolder("2026")
+
 	techEntry := widget.NewEntry()
-	techEntry.SetPlaceHolder("Go, React, Python, etc. • comma separated")
-	
-	// Category selector with live updates
+	techEntry.SetPlaceHolder("Go, Fyne, React")
+
 	categorySelect := widget.NewSelect(projectsData.Categories, nil)
 	if len(projectsData.Categories) > 0 {
 		categorySelect.SetSelected(projectsData.Categories[0])
 	}
-	
-	featuredCheck := widget.NewCheck("⭐ Featured Project", nil)
-	
-	// Links section
+
+	featuredCheck := widget.NewCheck("Featured project", nil)
+
 	githubEntry := widget.NewEntry()
-	githubEntry.SetPlaceHolder("https://github.com/username/project")
-	
+	githubEntry.SetPlaceHolder("GitHub URL")
+
 	liveEntry := widget.NewEntry()
-	liveEntry.SetPlaceHolder("https://demo.project.com")
-	
+	liveEntry.SetPlaceHolder("Live URL")
+
 	releaseEntry := widget.NewEntry()
-	releaseEntry.SetPlaceHolder("https://releases.project.com")
-	
-	// Buttons with better UX
-	moveUpBtn := widget.NewButtonWithIcon("↑ Move Up", theme.MoveUpIcon(), func() {
-		if selectedProjectIndex <= 0 {
-			dialog.ShowInformation("Can't Move Up", "This project is already at the top of the list!", mainWindow)
-			return
-		}
-		
-		projectsData.Projects[selectedProjectIndex], projectsData.Projects[selectedProjectIndex-1] =
-			projectsData.Projects[selectedProjectIndex-1], projectsData.Projects[selectedProjectIndex]
-		
-		selectedProjectIndex--
-		projectList.Refresh()
-		saveProjectsData()
-		dialog.ShowInformation("Reordered", "Project moved up.", mainWindow)
-	})
-	
-	moveDownBtn := widget.NewButtonWithIcon("↓ Move Down", theme.MoveDownIcon(), func() {
-		if selectedProjectIndex < 0 || selectedProjectIndex >= len(projectsData.Projects)-1 {
-			dialog.ShowInformation("Can't Move Down", "This project is already at the bottom!", mainWindow)
-			return
-		}
-		
-		projectsData.Projects[selectedProjectIndex], projectsData.Projects[selectedProjectIndex+1] =
-			projectsData.Projects[selectedProjectIndex+1], projectsData.Projects[selectedProjectIndex]
-		
-		selectedProjectIndex++
-		projectList.Refresh()
-		saveProjectsData()
-	})
-	
-	editProjectBtn := widget.NewButtonWithIcon("✏️ Load to Edit", theme.DocumentCreateIcon(), func() {
-		if selectedProjectIndex < 0 {
-			dialog.ShowInformation("Select First", "Click on a project in the list to edit it!", mainWindow)
-			return
-		}
-		
-		populateProjectForm(
-			titleEntry, descEntry, imageEntry, yearEntry, techEntry,
-			githubEntry, liveEntry, releaseEntry,
-			categorySelect, featuredCheck,
-			selectedProject,
-		)
-		
-		dialog.ShowInformation("Ready to Edit", "Project loaded! Make your changes and click Update.", mainWindow)
-	})
-	
-	updateProjectBtn := widget.NewButtonWithIcon("🔄 Update Project", theme.ConfirmIcon(), func() {
-		if selectedProjectIndex < 0 {
-			dialog.ShowInformation("No Selection", "Select a project first (click on it in the list)", mainWindow)
-			return
-		}
-		
-		if titleEntry.Text == "" || descEntry.Text == "" {
-			dialog.ShowInformation("Missing Info", "Title and Description are required.", mainWindow)
-			return
-		}
-		
-		// Parse technologies
-		technologies := []string{}
-		if techEntry.Text != "" {
-			techs := strings.Split(techEntry.Text, ",")
-			for _, tech := range techs {
-				if trimmed := strings.TrimSpace(tech); trimmed != "" {
-					technologies = append(technologies, trimmed)
-				}
-			}
-		}
-		
-		updatedProject := Project{
-			ID:           selectedProject.ID,
-			Title:        titleEntry.Text,
-			Description:  descEntry.Text,
-			Image:        imageEntry.Text,
-			Year:         yearEntry.Text,
-			Technologies: technologies,
-			Category:     categorySelect.Selected,
-			Featured:     featuredCheck.Checked,
-			Links: ProjectLinks{
-				Github:  githubEntry.Text,
-				Live:    liveEntry.Text,
-				Release: releaseEntry.Text,
-			},
-		}
-		
-		projectsData.Projects[selectedProjectIndex] = updatedProject
-		selectedProject = updatedProject
-		
-		projectList.Refresh()
-		saveProjectsData()
-		
-		// Clear form for next project
-		titleEntry.SetText("")
-		descEntry.SetText("")
-		imageEntry.SetText("")
-		yearEntry.SetText("")
-		techEntry.SetText("")
-		githubEntry.SetText("")
-		liveEntry.SetText("")
-		releaseEntry.SetText("")
-		featuredCheck.SetChecked(false)
-		
-		dialog.ShowInformation("Updated! 🎉", "Project changes saved.", mainWindow)
-	})
-	
-	addProjectBtn := widget.NewButtonWithIcon("➕ Add New Project", theme.ContentAddIcon(), func() {
-		if titleEntry.Text == "" || descEntry.Text == "" {
-			dialog.ShowInformation("Missing Info", "Title and Description are required for new projects!", mainWindow)
-			return
-		}
-		
-		if len(projectsData.Categories) == 0 {
-			dialog.ShowInformation("Need Categories", "Create at least one category before adding projects!", mainWindow)
-			return
-		}
-		
-		if categorySelect.Selected == "" {
-			dialog.ShowInformation("Select Category", "Pick a category for this project!", mainWindow)
-			return
-		}
-		
-		// Generate new ID
-		newID := 1
-		if len(projectsData.Projects) > 0 {
-			newID = projectsData.Projects[len(projectsData.Projects)-1].ID + 1
-		}
-		
-		technologies := []string{}
-		if techEntry.Text != "" {
-			techs := strings.Split(techEntry.Text, ",")
-			for _, tech := range techs {
-				if trimmed := strings.TrimSpace(tech); trimmed != "" {
-					technologies = append(technologies, trimmed)
-				}
-			}
-		}
-		
-		newProject := Project{
-			ID:           newID,
-			Title:        titleEntry.Text,
-			Description:  descEntry.Text,
-			Image:        imageEntry.Text,
-			Year:         yearEntry.Text,
-			Technologies: technologies,
-			Category:     categorySelect.Selected,
-			Featured:     featuredCheck.Checked,
-			Links: ProjectLinks{
-				Github:  githubEntry.Text,
-				Live:    liveEntry.Text,
-				Release: releaseEntry.Text,
-			},
-		}
-		
-		projectsData.Projects = append(projectsData.Projects, newProject)
-		projectList.Refresh()
-		saveProjectsData()
-		
-		// Clear form
-		titleEntry.SetText("")
-		descEntry.SetText("")
-		imageEntry.SetText("")
-		yearEntry.SetText("")
-		techEntry.SetText("")
-		githubEntry.SetText("")
-		liveEntry.SetText("")
-		releaseEntry.SetText("")
-		featuredCheck.SetChecked(false)
-		
-		dialog.ShowInformation("Project Added! 🚀", fmt.Sprintf("%s has been added.", newProject.Title), mainWindow)
-	})
-	
-	deleteProjectBtn := widget.NewButtonWithIcon("🗑️ Delete Selected", theme.DeleteIcon(), func() {
-		if selectedProjectIndex < 0 {
-			dialog.ShowInformation("Nothing Selected", "Click on a project to select it first!", mainWindow)
-			return
-		}
-		
-		dialog.ShowConfirm("Delete Project", fmt.Sprintf("Are you sure you want to delete '%s'? This can't be undone!", selectedProject.Title), func(confirm bool) {
-			if confirm {
-				projectsData.Projects = append(
-					projectsData.Projects[:selectedProjectIndex],
-					projectsData.Projects[selectedProjectIndex+1:]...,
-				)
-				selectedProjectIndex = -1
-				projectList.Refresh()
-				saveProjectsData()
-				dialog.ShowInformation("Deleted", "Project removed.", mainWindow)
-			}
-		}, mainWindow)
-	})
-	
-	// Category management section
-	categoryEntry := widget.NewEntry()
-	categoryEntry.SetPlaceHolder("e.g., web, mobile, ai, game")
-	
-	categoriesCount := widget.NewLabel(fmt.Sprintf("📁 %d categories", len(projectsData.Categories)))
-	
-	categoriesList := container.NewVBox()
-	refreshCategoriesList := func() {
-		categoriesList.Objects = nil
-		for i, cat := range projectsData.Categories {
-			catLabel := widget.NewLabel(fmt.Sprintf("%d. 🏷️ %s", i+1, cat))
-			categoriesList.AddObject(catLabel)
-		}
-		categoriesCount.SetText(fmt.Sprintf("📁 %d categories", len(projectsData.Categories)))
-		categoriesList.Refresh()
+	releaseEntry.SetPlaceHolder("Release URL")
+
+	loadForm := func(p Project) {
+		titleEntry.SetText(p.Title)
+		descEntry.SetText(p.Description)
+		imageEntry.SetText(p.Image)
+		yearEntry.SetText(p.Year)
+		techEntry.SetText(strings.Join(p.Technologies, ", "))
+		categorySelect.SetSelected(p.Category)
+		featuredCheck.SetChecked(p.Featured)
+		githubEntry.SetText(p.Links.Github)
+		liveEntry.SetText(p.Links.Live)
+		releaseEntry.SetText(p.Links.Release)
 	}
-	
-	refreshCategoriesList()
-	
-	addCategoryBtn := widget.NewButton("➕ Add Category", func() {
-		if categoryEntry.Text == "" {
-			dialog.ShowInformation("Need a Name", "What should we call this category?", mainWindow)
-			return
+
+	buildProject := func(id int) Project {
+		return Project{
+			ID:           id,
+			Title:        strings.TrimSpace(titleEntry.Text),
+			Description:  strings.TrimSpace(descEntry.Text),
+			Image:        strings.TrimSpace(imageEntry.Text),
+			Year:         strings.TrimSpace(yearEntry.Text),
+			Technologies: parseTechnologies(techEntry.Text),
+			Category:     categorySelect.Selected,
+			Featured:     featuredCheck.Checked,
+			Links: ProjectLinks{
+				Github:  strings.TrimSpace(githubEntry.Text),
+				Live:    strings.TrimSpace(liveEntry.Text),
+				Release: strings.TrimSpace(releaseEntry.Text),
+			},
 		}
-		
-		// Check for duplicates
-		for _, cat := range projectsData.Categories {
-			if strings.EqualFold(cat, categoryEntry.Text) {
-				dialog.ShowInformation("Already Exists", fmt.Sprintf("'%s' category already exists!", cat), mainWindow)
-				return
-			}
+	}
+
+	validateProject := func() bool {
+		if strings.TrimSpace(titleEntry.Text) == "" || strings.TrimSpace(descEntry.Text) == "" {
+			openMessageWindow("Message", "Action completed or needs attention.")
+			return false
 		}
-		
-		projectsData.Categories = append(projectsData.Categories, categoryEntry.Text)
-		
-		// Update selector
-		categorySelect.Options = projectsData.Categories
+		if categorySelect.Selected == "" {
+			openMessageWindow("Message", "Action completed or needs attention.")
+			return false
+		}
+		return true
+	}
+
+	clearForm := func() {
+		clearProjectForm(titleEntry, descEntry, imageEntry, yearEntry, techEntry, githubEntry, liveEntry, releaseEntry)
+		featuredCheck.SetChecked(false)
 		if len(projectsData.Categories) > 0 {
 			categorySelect.SetSelected(projectsData.Categories[0])
 		}
-		categorySelect.Refresh()
-		
-		refreshCategoriesList()
-		
-		categoryEntry.SetText("")
-		saveProjectsData()
-		dialog.ShowInformation("Category Added! 🎯", fmt.Sprintf("'%s' is now available for projects.", categoryEntry.Text), mainWindow)
-	})
-	
-	deleteCategoryBtn := widget.NewButtonWithIcon("🗑️ Remove Last", theme.DeleteIcon(), func() {
-		if len(projectsData.Categories) == 0 {
+	}
+
+	loadBtn := widget.NewButtonWithIcon("Load selected", theme.DocumentCreateIcon(), func() {
+		if selectedProjectIndex < 0 || selectedProjectIndex >= len(projectsData.Projects) {
+			openMessageWindow("Message", "Action completed or needs attention.")
 			return
 		}
-		
-		lastCategory := projectsData.Categories[len(projectsData.Categories)-1]
-		dialog.ShowConfirm("Delete Category", fmt.Sprintf("Delete '%s' category?\nProjects using this category will lose their category!", lastCategory), func(confirm bool) {
-			if confirm {
-				projectsData.Categories = projectsData.Categories[:len(projectsData.Categories)-1]
-				
-				categorySelect.Options = projectsData.Categories
-				if len(projectsData.Categories) > 0 {
-					categorySelect.SetSelected(projectsData.Categories[0])
-				} else {
-					categorySelect.SetSelected("")
-				}
-				categorySelect.Refresh()
-				
-				refreshCategoriesList()
-				saveProjectsData()
-				dialog.ShowInformation("Category Removed", "Make sure to reassign any affected projects!", mainWindow)
-			}
-		}, mainWindow)
+		loadForm(projectsData.Projects[selectedProjectIndex])
 	})
-	
-	categoriesScroll := container.NewVScroll(categoriesList)
-	categoriesScroll.SetMinSize(fyne.NewSize(300, 150))
-	
-	// Assemble the form
-	moveToolbar := container.NewHBox(
-		moveUpBtn,
-		moveDownBtn,
-		editProjectBtn,
-		updateProjectBtn,
+
+	addBtn := widget.NewButtonWithIcon("Add project", theme.ContentAddIcon(), func() {
+		if !validateProject() {
+			return
+		}
+		projectsData.Projects = append(projectsData.Projects, buildProject(nextProjectID()))
+		saveProjectsData()
+		refreshProjectList()
+		clearForm()
+	})
+	addBtn.Importance = widget.HighImportance
+
+	updateBtn := widget.NewButtonWithIcon("Update selected", theme.ConfirmIcon(), func() {
+		if selectedProjectIndex < 0 || selectedProjectIndex >= len(projectsData.Projects) {
+			openMessageWindow("Message", "Action completed or needs attention.")
+			return
+		}
+		if !validateProject() {
+			return
+		}
+		id := projectsData.Projects[selectedProjectIndex].ID
+		projectsData.Projects[selectedProjectIndex] = buildProject(id)
+		saveProjectsData()
+		refreshProjectList()
+		clearForm()
+	})
+
+	moveUpBtn := widget.NewButtonWithIcon("Move up", theme.MoveUpIcon(), func() {
+		if selectedProjectIndex <= 0 || selectedProjectIndex >= len(projectsData.Projects) {
+			return
+		}
+		projectsData.Projects[selectedProjectIndex], projectsData.Projects[selectedProjectIndex-1] = projectsData.Projects[selectedProjectIndex-1], projectsData.Projects[selectedProjectIndex]
+		selectedProjectIndex--
+		saveProjectsData()
+		refreshProjectList()
+		projectList.Select(selectedProjectIndex)
+	})
+
+	moveDownBtn := widget.NewButtonWithIcon("Move down", theme.MoveDownIcon(), func() {
+		if selectedProjectIndex < 0 || selectedProjectIndex >= len(projectsData.Projects)-1 {
+			return
+		}
+		projectsData.Projects[selectedProjectIndex], projectsData.Projects[selectedProjectIndex+1] = projectsData.Projects[selectedProjectIndex+1], projectsData.Projects[selectedProjectIndex]
+		selectedProjectIndex++
+		saveProjectsData()
+		refreshProjectList()
+		projectList.Select(selectedProjectIndex)
+	})
+
+	categoryEntry := widget.NewEntry()
+	categoryEntry.SetPlaceHolder("new category")
+
+	categoriesBox := container.NewVBox()
+	categoriesCount := widget.NewLabel("")
+
+	refreshCategories := func() {
+		sort.Strings(projectsData.Categories)
+		categoriesBox.Objects = nil
+		for _, category := range projectsData.Categories {
+			categoriesBox.Add(widget.NewLabel("🏷️ " + category))
+		}
+		categoriesCount.SetText(fmt.Sprintf("%d categories", len(projectsData.Categories)))
+		categorySelect.Options = projectsData.Categories
+		categorySelect.Refresh()
+		categoriesBox.Refresh()
+	}
+	refreshCategories()
+
+	addCategoryBtn := widget.NewButtonWithIcon("Add category", theme.ContentAddIcon(), func() {
+		newCategory := strings.TrimSpace(categoryEntry.Text)
+		if newCategory == "" {
+			openMessageWindow("Message", "Action completed or needs attention.")
+			return
+		}
+		for _, category := range projectsData.Categories {
+			if strings.EqualFold(category, newCategory) {
+				dialog.ShowInformation("Already exists", fmt.Sprintf("%q already exists.", category), mainWindow)
+				return
+			}
+		}
+		projectsData.Categories = append(projectsData.Categories, newCategory)
+		categoryEntry.SetText("")
+		refreshCategories()
+		categorySelect.SetSelected(newCategory)
+		saveProjectsData()
+	})
+
+	categoryScroll := container.NewVScroll(categoriesBox)
+	categoryScroll.SetMinSize(fyne.NewSize(320, 170))
+
+	deleteProjectBtn := widget.NewButtonWithIcon("Delete selected project", theme.DeleteIcon(), func() {
+		if selectedProjectIndex < 0 || selectedProjectIndex >= len(projectsData.Projects) {
+			openMessageWindow("Message", "Action completed or needs attention.")
+			return
+		}
+
+		name := projectsData.Projects[selectedProjectIndex].Title
+		openConfirmWindow("Delete project", fmt.Sprintf("Delete project %q? This cannot be undone.", name), "Delete project", func() {
+			if selectedProjectIndex < 0 || selectedProjectIndex >= len(projectsData.Projects) {
+				return
+			}
+
+			projectsData.Projects = append(projectsData.Projects[:selectedProjectIndex], projectsData.Projects[selectedProjectIndex+1:]...)
+			selectedProjectIndex = -1
+			saveProjectsData()
+			refreshProjectList()
+			clearForm()
+		})
+	})
+	deleteProjectBtn.Importance = widget.DangerImportance
+
+	removeCategoryBtn := widget.NewButtonWithIcon("Remove last category", theme.DeleteIcon(), func() {
+		if len(projectsData.Categories) == 0 {
+			openMessageWindow("Message", "Action completed or needs attention.")
+			return
+		}
+
+		last := projectsData.Categories[len(projectsData.Categories)-1]
+		openConfirmWindow("Remove category", fmt.Sprintf("Remove category %q? Existing projects keep the text, but it will disappear from the selector.", last), "Remove category", func() {
+			if len(projectsData.Categories) == 0 {
+				return
+			}
+
+			projectsData.Categories = projectsData.Categories[:len(projectsData.Categories)-1]
+			refreshCategories()
+			if len(projectsData.Categories) > 0 {
+				categorySelect.SetSelected(projectsData.Categories[0])
+			} else {
+				categorySelect.SetSelected("")
+			}
+			saveProjectsData()
+		})
+	})
+	removeCategoryBtn.Importance = widget.DangerImportance
+
+	leftSide := panel("Projects", container.NewPadded(projectList))
+
+	manageTab := container.NewVScroll(container.NewPadded(container.NewVBox(
+		panel("Project actions", container.NewVBox(
+			container.NewGridWithColumns(2, loadBtn, updateBtn),
+			container.NewGridWithColumns(2, moveUpBtn, moveDownBtn),
+		)),
+		panel("Categories", container.NewVBox(
+			widget.NewLabel("Add a new category:"),
+			container.NewBorder(nil, nil, nil, addCategoryBtn, container.NewGridWrap(fyne.NewSize(280, 42), categoryEntry)),
+			categoriesCount,
+			categoryScroll,
+		)),
+		panel("Project details", container.NewVBox(
+			titleEntry,
+			descEntry,
+			container.NewGridWithColumns(2, imageEntry, yearEntry),
+			techEntry,
+			categorySelect,
+			featuredCheck,
+		)),
+		panel("Links", container.NewVBox(githubEntry, liveEntry, releaseEntry)),
+		panel("Save", container.NewGridWithColumns(2, addBtn, widget.NewButtonWithIcon("Clear form", theme.ContentClearIcon(), clearForm))),
+	)))
+
+	deleteTab := container.NewVScroll(container.NewPadded(container.NewVBox(
+		panel("Delete zone", container.NewVBox(
+			widget.NewLabel("Select a project from the list on the left, then delete it here."),
+			deleteProjectBtn,
+		)),
+		panel("Category delete zone", container.NewVBox(
+			widget.NewLabel("This removes only the last category from the category list."),
+			widget.NewLabel("Projects that already use that category will not be deleted."),
+			removeCategoryBtn,
+		)),
+	)))
+
+	rightTabs := container.NewAppTabs(
+		container.NewTabItemWithIcon("Manage", theme.SettingsIcon(), manageTab),
+		container.NewTabItemWithIcon("Delete Zone", theme.DeleteIcon(), deleteTab),
 	)
-	
-	form := container.NewVScroll(
-		container.NewPadded(
-			container.NewVBox(
-				createModernCard("🎯 Project Actions",
-					container.NewVBox(
-						widget.NewLabel("Select a project from the list, then:"),
-						moveToolbar,
-					),
-				),
-				
-				createModernCard("🏷️ Manage Categories",
-					container.NewVBox(
-						widget.NewLabel("Add categories to organize your work:"),
-						container.NewHBox(
-							categoryEntry,
-							addCategoryBtn,
-						),
-						categoriesCount,
-						categoriesScroll,
-						deleteCategoryBtn,
-					),
-				),
-				
-				createModernSeparator(),
-				
-				createModernCard("💻 Project Details",
-					container.NewVBox(
-						titleEntry,
-						descEntry,
-						container.NewGridWithColumns(2,
-							imageEntry,
-							yearEntry,
-						),
-						techEntry,
-						container.NewVBox(
-							widget.NewLabel("Category:"),
-							categorySelect,
-							featuredCheck,
-						),
-					),
-				),
-				
-				createModernCard("🔗 Links (optional)",
-					container.NewVBox(
-						githubEntry,
-						liveEntry,
-						releaseEntry,
-					),
-				),
-				
-				createModernCard("⚡ Actions",
-					container.NewHBox(
-						addProjectBtn,
-						deleteProjectBtn,
-					),
-				),
-			),
-		),
-	)
-	
-	split := container.NewHSplit(
-		container.NewBorder(
-			createModernCard("📋 Your Projects (click to select)", nil),
-			nil, nil, nil,
-			container.NewPadded(projectList),
-		),
-		form,
-	)
-	split.Offset = 0.4
-	
+	rightTabs.SetTabLocation(container.TabLocationTop)
+
+	split := container.NewHSplit(leftSide, rightTabs)
+	split.Offset = 0.38
 	return split
 }
 
-// Settings/Save tab
 func createSaveTab() fyne.CanvasObject {
 	dir, _ := os.Getwd()
-	
-	stats := createModernCard("📊 Portfolio Statistics",
-		container.NewGridWithColumns(2,
-			container.NewVBox(
-				widget.NewLabelWithStyle("Changelog:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-				widget.NewLabel(fmt.Sprintf("📝 %d version entries", len(currentData.Entries))),
-				widget.NewLabel(fmt.Sprintf("🔮 %d planned features", len(currentData.FutureFeatures))),
-			),
-			container.NewVBox(
-				widget.NewLabelWithStyle("Projects:", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
-				widget.NewLabel(fmt.Sprintf("💻 %d projects", len(projectsData.Projects))),
-				widget.NewLabel(fmt.Sprintf("🏷️ %d categories", len(projectsData.Categories))),
-			),
-		),
-	)
-	
-	files := createModernCard("📁 File Locations",
+
+	stats := container.NewGridWithColumns(2,
 		container.NewVBox(
-			widget.NewLabel(fmt.Sprintf("📂 Working Directory: %s", dir)),
-			widget.NewLabel(fmt.Sprintf("📄 %s • Changelog data", changelogFile)),
-			widget.NewLabel(fmt.Sprintf("📄 %s • Projects data", projectsFile)),
+			widget.NewLabelWithStyle("Changelog", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(fmt.Sprintf("%d releases", len(currentData.Entries))),
+			widget.NewLabel(fmt.Sprintf("%d roadmap items", len(currentData.FutureFeatures))),
 		),
-	)
-	
-	actions := createModernCard("⚙️ System Actions",
 		container.NewVBox(
-			widget.NewButtonWithIcon("💾 Save Everything", theme.DocumentSaveIcon(), func() {
-				saveAllData()
-			}),
-			widget.NewButtonWithIcon("🔄 Reload from Disk", theme.ViewRefreshIcon(), func() {
-				loadChangelogData()
-				loadProjectsData()
-				dialog.ShowInformation("Reloaded! 🔄", "All data has been refreshed from disk. Changes made elsewhere are now visible.", mainWindow)
-			}),
+			widget.NewLabelWithStyle("Projects", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
+			widget.NewLabel(fmt.Sprintf("%d projects", len(projectsData.Projects))),
+			widget.NewLabel(fmt.Sprintf("%d categories", len(projectsData.Categories))),
 		),
 	)
-	
-	funFact := widget.NewLabelWithStyle("💡 Did you know? Nothing..", 
-		fyne.TextAlignCenter, fyne.TextStyle{Italic: true})
-	
-	return container.NewVScroll(
-		container.NewPadded(
-			container.NewVBox(
-				stats,
-				files,
-				actions,
-				createModernSeparator(),
-				funFact,
-			),
-		),
+
+	files := container.NewVBox(
+		widget.NewLabel("Working directory:"),
+		widget.NewLabel(dir),
+		widget.NewLabel("Data files:"),
+		widget.NewLabel("• "+changelogFile),
+		widget.NewLabel("• "+projectsFile),
 	)
+
+	actions := container.NewGridWithColumns(2,
+		widget.NewButtonWithIcon("Save all", theme.DocumentSaveIcon(), saveAllData),
+		widget.NewButtonWithIcon("Reload", theme.ViewRefreshIcon(), func() {
+			loadChangelogData()
+			loadProjectsData()
+			mainWindow.SetContent(createMainMenu())
+		}),
+	)
+
+	return container.NewVScroll(container.NewPadded(container.NewVBox(
+		panel("Portfolio statistics", stats),
+		panel("File locations", files),
+		panel("System actions", actions),
+		widget.NewLabelWithStyle("Tip: keep changelog.json and projects.json near the executable.", fyne.TextAlignCenter, fyne.TextStyle{Italic: true}),
+	)))
 }
