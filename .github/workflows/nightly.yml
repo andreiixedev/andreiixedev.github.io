@@ -3,7 +3,9 @@ name: Nightly Release
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
     paths:
       - "changelog-software/**"
       - ".github/workflows/nightly.yml"
@@ -47,16 +49,36 @@ jobs:
           cache: true
           cache-dependency-path: changelog-software/go.sum
 
+      - name: Install Linux dependencies
+        if: matrix.name == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc \
+            pkg-config \
+            libgl1-mesa-dev \
+            xorg-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxi-dev \
+            libxxf86vm-dev \
+            libwayland-dev \
+            libxkbcommon-dev
+
       - name: Download dependencies
         run: go mod download
 
       - name: Build Windows
         if: matrix.name == 'Windows'
-        run: go build -ldflags="-s -w -H=windowsgui" -o ${{ matrix.output }} main.go
+        run: |
+          go build -ldflags="-s -w -H=windowsgui" -o ${{ matrix.output }} main.go
 
       - name: Build Linux
         if: matrix.name == 'Linux'
-        run: go build -ldflags="-s -w" -o ${{ matrix.output }} main.go
+        run: |
+          go build -ldflags="-s -w" -o ${{ matrix.output }} main.go
 
       - name: Package Windows
         if: matrix.name == 'Windows'
@@ -112,20 +134,30 @@ jobs:
           tag_name: nightly
           name: "🌙 AndreiixeDev Studio - Nightly"
           body: |
-            ## Automatic nightly build
+            ## 🔄 Automatic Nightly Build
 
             **Commit:** `${{ steps.info.outputs.hash }}`
             **Author:** ${{ steps.info.outputs.author }}
             **Date:** ${{ steps.info.outputs.date }}
 
-            ### Latest commit message
+            ### 📝 Latest Commit Message
             ${{ steps.info.outputs.msg }}
 
-            ### Included builds
-            - Windows
-            - Linux
+            ---
+
+            ### 📦 Included Builds
+            - 🪟 Windows
+            - 🐧 Linux
+
+            ---
 
             Generated automatically from:
             `changelog-software/`
+
           files: |
             artifacts/*.zip
+
+      - name: List artifacts
+        run: |
+          echo "Uploaded files:"
+          ls -la artifacts/
